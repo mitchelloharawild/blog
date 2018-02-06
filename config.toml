@@ -1,0 +1,29 @@
+theme = "hemingway2"
+title = "Blog"
+description = "R package discussion and data science pondering"
+relativeURLs = true
+keywords = ["R", "package", "data"]
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
+baseURL = "http://blog.mitchelloharawild.com/"
+
+[taxonomies]
+tag = "tags"
+category = "categories"
+
+[params]
+
+[params.highlight]
+style = "github"
+languages = ["go", "dockerfile"]
+
+[[params.social]]
+url = "https://github.com/mitchelloharawild"
+fa_icon = "fa-github"
+
+[[params.social]]
+url = "https://twitter.com/mitchoharawild"
+fa_icon = "fa-twitter"
+
+[[params.social]]
+url = "/index.xml"
+fa_icon = "fa-rss"
