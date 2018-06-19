@@ -29,4 +29,7 @@ HUGO_VERSION = "0.42.1"
 [context.next.environment]
 HUGO_ENABLEGITINFO = "true"
 
-
+[[redirects]]
+  from = "http://blog-mitchell.netlify.com/*"
+  to = "http://blog.mitchelloharawild.com/:splat"
+  status = 301
