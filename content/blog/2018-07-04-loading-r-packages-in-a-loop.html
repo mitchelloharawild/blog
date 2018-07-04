@@ -1,0 +1,145 @@
+---
+title: Loading R packages in a loop
+author: Mitchell O'Hara-Wild
+date: '2018-07-04'
+slug: loading-r-packages-in-a-loop
+categories:
+  - nse
+tags:
+  - library
+  - package
+  - loop
+description: ''
+featured: ''
+featuredalt: ''
+featuredpath: ''
+linktitle: ''
+type: post
+---
+
+
+
+<p>In Nick Tierney (<a href="https://twitter.com/nj_tierney">@nj_tierney</a>) and Saskia Freytag’s (<a href="https://twitter.com/trashystats">@trashystats</a>) second Credibly Curious <a href="https://soundcloud.com/crediblycurious/2-episode-the-tidyverse">podcast</a>, they briefly delve into the confusing world of non-standard evaluation (NSE). As part of this discussion, podcast guest Roger Peng (<a href="https://twitter.com/rdpeng">@rdpeng</a>) noted that:</p>
+<blockquote>
+<p>If you really want have fun, try loading packages in a loop</p>
+</blockquote>
+<p>Although not a pop-quiz, it is certainly a challenge, and a common cause of confusion for R users.</p>
+<p>Most R users would load packages using the library function, such as <code>library(tidyverse)</code>, and to load them in a loop, one might try:</p>
+<pre class="r"><code>packages &lt;- c(&quot;ggplot2&quot;, &quot;dplyr&quot;)
+for(pkg in packages){
+  library(pkg)
+}</code></pre>
+<pre><code>#&gt; Error in library(pkg): there is no package called &#39;pkg&#39;</code></pre>
+<p>If it were that simple, it wouldn’t warrant a blog post! This doesn’t work because the library function uses non-standard evaluation. That is what allows you to use <code>library(tidyverse)</code> instead of <code>library(&quot;tidyverse&quot;)</code>. In the loop, R tries to be helpful by loading <code>pkg</code> instead of the value stored inside (“ggplot2”, and then “dplyr”).</p>
+<div id="what-is-non-standard-evaluation" class="section level2">
+<h2>What is non-standard evaluation?</h2>
+<p>For most R users, an understanding of non-standard evaluation (NSE) is rarely needed. You may not know what non-standard evaluation is, but you have definitely used it before (perhaps without even realising). In fact, NSE is used each time you load in a package without quoting the package name.</p>
+<p>Most tidyverse packages also leverage NSE to simplify the typing needed to transform a dataset or plot some data. Try to identify the NSE parts in the following code examples:</p>
+<pre class="r"><code>library(dplyr)
+mtcars %&gt;%
+  mutate(displ_l = disp / 61.0237)</code></pre>
+<pre class="r"><code>library(ggplot2)
+ggplot(mtcars, aes(wt, mpg)) +
+  geom_point()</code></pre>
+<p>So what is non-standard evaluation? As the name may suggest, it is code which is evaluated in a non-standard way. As an example, let’s look at the dplyr code above. The mutate function is calculating <code>disp / 61.0237</code> and saving the result as a column called displ_l. Standard evaluation in R would find the disp variable and compute the division, so let’s try that:</p>
+<pre class="r"><code>disp / 61.0237</code></pre>
+<pre><code>#&gt; Error in eval(expr, envir, enclos): object &#39;disp&#39; not found</code></pre>
+<p>R is unable to find the disp variable because it exists as a column in the mtcars dataset, not in the evaluation environment. When using this code in the mutate function, dplyr helpfully prevents evaluation, and later re-evaluates by first looking in the provided data, and then in the evaluation environment. So when this code is used in the mutate function, R is now able to find disp, because dplyr has changed where R looks for the variable.</p>
+<pre class="r"><code>mtcars %&gt;%
+  mutate(displ_l = disp / 61.0237)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">mpg</th>
+<th align="right">cyl</th>
+<th align="right">disp</th>
+<th align="right">hp</th>
+<th align="right">drat</th>
+<th align="right">wt</th>
+<th align="right">qsec</th>
+<th align="right">vs</th>
+<th align="right">am</th>
+<th align="right">gear</th>
+<th align="right">carb</th>
+<th align="right">displ_l</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">21.0</td>
+<td align="right">6</td>
+<td align="right">160</td>
+<td align="right">110</td>
+<td align="right">3.90</td>
+<td align="right">2.620</td>
+<td align="right">16.46</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">2.621932</td>
+</tr>
+<tr class="even">
+<td align="right">21.0</td>
+<td align="right">6</td>
+<td align="right">160</td>
+<td align="right">110</td>
+<td align="right">3.90</td>
+<td align="right">2.875</td>
+<td align="right">17.02</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">2.621932</td>
+</tr>
+<tr class="odd">
+<td align="right">22.8</td>
+<td align="right">4</td>
+<td align="right">108</td>
+<td align="right">93</td>
+<td align="right">3.85</td>
+<td align="right">2.320</td>
+<td align="right">18.61</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="right">1.769804</td>
+</tr>
+</tbody>
+</table>
+<p>For more details on non-standard evaluation, I recommend reading the <a href="http://adv-r.had.co.nz/Computing-on-the-language.html">Advanced R book</a>.</p>
+</div>
+<div id="using-nse-to-load-packages-in-a-loop" class="section level2">
+<h2>Using NSE to load packages in a loop</h2>
+<p>So, now with a brief understanding of NSE, let’s try to use the library function in a loop again. Remember, the issue is that library uses non-standard evaluation on package names, so we can’t use <code>library(pkg)</code>. Instead, we need to use NSE ourselves to substitute pkg with the name of the package itself, as if you had written it directly into the console. To achieve this, we need to build an expression, which is simply code which has not yet been evaluated.</p>
+<p>There are many different ways to do this, but I will suggest two similar methods: one using base R, and one using the tidyverse.</p>
+<p>In base, you can replace values in an expression using <code>bquote()</code> and <code>.()</code> to create the desired expression.</p>
+<pre class="r"><code>pkg &lt;- &quot;ggplot2&quot;
+bquote(library(.(pkg)))</code></pre>
+<pre><code>#&gt; library(&quot;ggplot2&quot;)</code></pre>
+<p>Using rlang, we can achieve a similar result using <code>expr()</code> and <code>!!</code> to replace the <code>pkg</code> with the actual variable.</p>
+<pre class="r"><code>library(rlang)
+pkg &lt;- &quot;ggplot2&quot;
+expr(library(!!pkg))</code></pre>
+<pre><code>#&gt; library(&quot;ggplot2&quot;)</code></pre>
+<p>All that is left is to evaluate these expressions using <code>eval</code> or <code>eval_tidy</code> in a loop, which will run the code and load the packages.</p>
+<pre class="r"><code># Base
+for(pkg in c(&quot;ggplot2&quot;, &quot;dplyr&quot;)){
+  eval(bquote(library(.(pkg))))
+}
+
+# Tidy
+library(purrr)
+library(rlang)
+c(&quot;ggplot2&quot;, &quot;dplyr&quot;) %&gt;%
+  map(~ eval_tidy(expr(library(!!.x))))</code></pre>
+</div>
+<div id="alternatively" class="section level2">
+<h2>Alternatively…</h2>
+<p>You could also set <code>character.only = TRUE</code> which prevents the use of non-standard evaluation. But if I started with that, I wouldn’t have a good excuse to talk about the wonders of non-standard evaluation!</p>
+<pre class="r"><code>for(pkg in c(&quot;ggplot2&quot;, &quot;dplyr&quot;)){
+  library(pkg, character.only = TRUE)
+}</code></pre>
+</div>
