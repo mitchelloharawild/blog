@@ -29,7 +29,7 @@ In Nick Tierney ([\@nj_tierney](https://twitter.com/nj_tierney)) and Saskia Frey
 
 Although not a pop-quiz, it is certainly a challenge, and a common cause of confusion for R users.
 
-Most R users would load packages using the library function, such as `library(tidyverse)`, and to load them in a loop, one might try:
+Most R users would load packages using the library function, such as `library(tidyverse)`. So to load packages in a loop, one might try:
 ```{r, error=TRUE}
 packages <- c("ggplot2", "dplyr")
 for(pkg in packages){
