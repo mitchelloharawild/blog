@@ -9,14 +9,13 @@ tags:
   - library
   - package
   - loop
-description: ''
-featured: ''
-featuredalt: ''
-featuredpath: ''
+description: 'Non-standard evaluation with the library function'
+featured: 'pkg_loop.png'
+featuredalt: 'Example NSE problem'
+featuredpath: 'date'
 linktitle: ''
 type: post
 ---
-
 ```{r, include=FALSE}
 knitr::opts_chunk$set(
   comment = "#>"

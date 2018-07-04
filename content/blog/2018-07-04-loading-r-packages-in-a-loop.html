@@ -9,10 +9,10 @@ tags:
   - library
   - package
   - loop
-description: ''
-featured: ''
-featuredalt: ''
-featuredpath: ''
+description: 'Non-standard evaluation with the library function'
+featured: 'pkg_loop.png'
+featuredalt: 'Example NSE problem'
+featuredpath: 'date'
 linktitle: ''
 type: post
 ---
@@ -24,7 +24,7 @@ type: post
 <p>If you really want have fun, try loading packages in a loop</p>
 </blockquote>
 <p>Although not a pop-quiz, it is certainly a challenge, and a common cause of confusion for R users.</p>
-<p>Most R users would load packages using the library function, such as <code>library(tidyverse)</code>, and to load them in a loop, one might try:</p>
+<p>Most R users would load packages using the library function, such as <code>library(tidyverse)</code>. So to load packages in a loop, one might try:</p>
 <pre class="r"><code>packages &lt;- c(&quot;ggplot2&quot;, &quot;dplyr&quot;)
 for(pkg in packages){
   library(pkg)
