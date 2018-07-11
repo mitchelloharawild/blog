@@ -33,7 +33,7 @@ My need for this functionality began with the creation of a hex sticker feature 
 
 In that project we collected the stickers via email, but for this blog we will use the RStudio hex-stickers from their GitHub repository ([rstudio/hex-stickers](https://github.com/rstudio/hex-stickers)).
 
-```{r dl, cache = TRUE}
+```{r dl}
 hex_folder <- "hex_files"
 
 download.file(

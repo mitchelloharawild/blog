@@ -30,35 +30,42 @@ type: post
 download.file(
   url = &quot;https://github.com/rstudio/hex-stickers/archive/master.zip&quot;,
   destfile = file.path(hex_folder, &quot;rstudio-hex.zip&quot;)
-)</code></pre>
-<pre><code>#&gt; Warning in download.file(url = &quot;https://github.com/rstudio/hex-stickers/
-#&gt; archive/master.zip&quot;, : URL https://github.com/rstudio/hex-stickers/archive/
-#&gt; master.zip: cannot open destfile &#39;hex_files/rstudio-hex.zip&#39;, reason &#39;No
-#&gt; such file or directory&#39;</code></pre>
-<pre><code>#&gt; Warning in download.file(url = &quot;https://github.com/rstudio/hex-stickers/
-#&gt; archive/master.zip&quot;, : download had nonzero exit status</code></pre>
-<pre class="r"><code>unzip(
+)
+
+unzip(
   zipfile = file.path(hex_folder, &quot;rstudio-hex.zip&quot;),
   exdir = hex_folder
-)</code></pre>
-<pre><code>#&gt; Warning in unzip(zipfile = file.path(hex_folder, &quot;rstudio-hex.zip&quot;), exdir
-#&gt; = hex_folder): error 1 in extracting from zip file</code></pre>
-<pre class="r"><code>path &lt;- file.path(hex_folder, &quot;hex-stickers-master&quot;, &quot;PNG&quot;)
+)
+
+path &lt;- file.path(hex_folder, &quot;hex-stickers-master&quot;, &quot;PNG&quot;)
 
 # Remove the non-image files
 unlink(list.files(path, full.names = TRUE)[tools::file_ext(list.files(path)) %in% c(&quot;md&quot;, &quot;Rmd&quot;)])
 
 list.files(path)</code></pre>
-<pre><code>#&gt; character(0)</code></pre>
+<pre><code>#&gt;  [1] &quot;blogdown.png&quot;       &quot;bookdown.png&quot;       &quot;broom.png&quot;         
+#&gt;  [4] &quot;covr.png&quot;           &quot;dbplot.png&quot;         &quot;devtools.png&quot;      
+#&gt;  [7] &quot;dplyr.png&quot;          &quot;feather.png&quot;        &quot;forcats.png&quot;       
+#&gt; [10] &quot;fs.png&quot;             &quot;ggplot2.png&quot;        &quot;glue.png&quot;          
+#&gt; [13] &quot;googledrive.png&quot;    &quot;googlesheets.png&quot;   &quot;haven.png&quot;         
+#&gt; [16] &quot;hms.png&quot;            &quot;knitr.png&quot;          &quot;lobstr.png&quot;        
+#&gt; [19] &quot;lubridate.png&quot;      &quot;modeldb.png&quot;        &quot;modelr.png&quot;        
+#&gt; [22] &quot;pipe.png&quot;           &quot;pkgdown.png&quot;        &quot;plumber-female.png&quot;
+#&gt; [25] &quot;plumber-male.png&quot;   &quot;purrr.png&quot;          &quot;r2d3.png&quot;          
+#&gt; [28] &quot;readr.png&quot;          &quot;readxl.png&quot;         &quot;recipes.png&quot;       
+#&gt; [31] &quot;reprex.png&quot;         &quot;rlang.png&quot;          &quot;rmarkdown.png&quot;     
+#&gt; [34] &quot;roxygen2.png&quot;       &quot;rsample.png&quot;        &quot;RStudio.png&quot;       
+#&gt; [37] &quot;rvest.png&quot;          &quot;shiny.png&quot;          &quot;sparklyr.png&quot;      
+#&gt; [40] &quot;stringr.png&quot;        &quot;testthat.png&quot;       &quot;tibble.png&quot;        
+#&gt; [43] &quot;tidyposterior.png&quot;  &quot;tidypredict.png&quot;    &quot;tidyr.png&quot;         
+#&gt; [46] &quot;tidyverse.png&quot;      &quot;usethis.png&quot;        &quot;withr.png&quot;         
+#&gt; [49] &quot;yardstick.png&quot;</code></pre>
 <div id="preparation" class="section level2">
 <h2>Preparation</h2>
 <p>Before we start aligning the hexagons, we first need to convert them to a common size and format. In most cases, the conversion can be done automatically with the <a href="https://github.com/ropensci/magick">ROpenSci magick package</a>.</p>
 <p>All images can be read with <code>image_read</code>, however better quality for svg and png formats can be obtained using their specific reading functions. As many stickers had white backgrounds (especially pdf format images), I first convert white to transparent, and then use <code>image_trim</code> to automatically crop the images.</p>
-<pre class="r"><code>library(magick)</code></pre>
-<pre><code>#&gt; Linking to ImageMagick 6.9.7.4
-#&gt; Enabled features: fontconfig, freetype, fftw, lcms, pango, x11
-#&gt; Disabled features: cairo, ghostscript, rsvg, webp</code></pre>
-<pre class="r"><code>library(purrr)
+<pre class="r"><code>library(magick)
+library(purrr)
 
 sticker_files &lt;- list.files(path)
 stickers &lt;- file.path(path, sticker_files) %&gt;% 
@@ -102,7 +109,7 @@ stickers &lt;- stickers %&gt;%
   map(image_resize, paste0(sticker_width, &quot;x&quot;, sticker_height, &quot;!&quot;))
 
 stickers[[&quot;tidyverse.png&quot;]]</code></pre>
-<p><img src="/blog/2018-07-11-hexwall_files/figure-html/resize-1.png" width="60" /></p>
+<p><img src="/blog/2018-07-10-hexwall_files/figure-html/resize-1.png" width="60" /></p>
 </div>
 <div id="alignment" class="section level2">
 <h2>Alignment</h2>
@@ -120,7 +127,7 @@ sticker_rows &lt;- map2(row_lens, cumsum(row_lens),
         image_append)
 
 sticker_rows[[1]]</code></pre>
-<p><img src="/blog/2018-07-11-hexwall_files/figure-html/rows-1.png" width="544" /></p>
+<p><img src="/blog/2018-07-10-hexwall_files/figure-html/rows-1.png" width="544" /></p>
 <p>To simplify the placement of these sticker rows, we can first create a white canvas for us to place sticker rows on. The width is simple to calculate, but the height is slightly more complex. The extra height of each row is the height of the left side of the hexagon (approximately <code>sticker_height/1.33526</code>), then to add the angled parts of the hexagon for the top and bottom, we add the height of one whole sticker.</p>
 <pre class="r"><code># Add stickers to canvas
 canvas &lt;- image_blank(sticker_row_size*sticker_width, 
@@ -134,5 +141,11 @@ canvas &lt;- image_blank(sticker_row_size*sticker_width,
                           &quot;+&quot;, round((..3-1)*sticker_height/1.33526))
         ),
         .init = canvas)</code></pre>
-<p><img src="/blog/2018-07-11-hexwall_files/figure-html/final-1.png" width="544" /></p>
+<p><img src="/blog/2018-07-10-hexwall_files/figure-html/final-1.png" width="544" /></p>
+</div>
+<div id="hexwall" class="section level2">
+<h2>hexwall</h2>
+<p>Now that you know how it works, try it out on your own hexagon stickers. You can use the code above, or the script available on Github (<a href="https://github.com/mitchelloharawild/hexwall">mitchelloharawild/hexwall</a>). To use the hexwall script on this example, you would use the hexwall function like this:</p>
+<pre class="r"><code>source(&quot;hexwall.R&quot;)
+hexwall(&quot;path&quot;, sticker_row_size = 9, sticker_width = 121)</code></pre>
 </div>
