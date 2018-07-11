@@ -1,0 +1,106 @@
+---
+title: useR! 2018 feature wall
+author: Mitchell O'Hara-Wild
+date: '2018-07-11'
+slug: user-2018-feature-wall
+categories:
+  - magick
+  - useR!2018
+tags:
+  - conference
+  - hexagon
+  - sticker
+  - wall
+  - design
+description: 'Creating the hexmap feature wall for useR! 2018'
+featured: 'featurewall.png'
+featuredalt: 'Hex sticker feature wall'
+featuredpath: 'date'
+linktitle: ''
+type: post
+---
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  comment = "#>",
+  message = FALSE
+)
+
+set.seed(71)
+```
+
+The hexwall at [useR! 2018](http://user2018.r-project.org/) features roughly 200 contributed R package hexagon stickers. If you've ever had difficulty aligning hexagon stickers in your slides or even on your laptop, you may appreciate the challenge of arranging hundreds of hexagons. Fortunately with R and a little bit of magick, we can substantially simplify this process.
+
+## Collection
+
+Hexagon collection proved to be one of the more time-consuming steps in the project. Without a Comprehensive R Hexagon Repository (CRHR), Di Cook ([\@visnut](https://twitter.com/visnut/)) and I resorted to collecting hexagons via email and promoting the project via twitter.
+
+{{% tweet 999443177412030464 %}}
+
+Our collection efforts were also supported by Rstudio's [hexsticker](http://github.com/rstudio/hexsticker) and Bioconductor's [BiocStickers](https://github.com/Bioconductor/BiocStickers) repositories. We opted not to sift through the [hexb.in](http://hexb.in/) library as we wanted the feature wall to feature only R package stickers.
+
+The response to our project has been huge, and we are grateful for everyone who has contributed their stickers.
+
+## hexwall
+The hexwall script (available at [mitchelloharawild/hexwall](https://github.com/mitchelloharawild/hexwall)) provides the magick for cleaning, sorting, and arranging hexagons. The function does the following operations using the [ROpenSci magick package](https://github.com/ropensci/magick):
+
+* Load the images
+* Make white backgrounds transparent
+* Trim images
+* Remove bad images (low resolution or incorrect dimensions)
+* Arrange the stickers on the canvas
+
+For more details on using magick to arrange hexagons, you can read [arranging hex stickers in R](https://blog.mitchelloharawild.com/blog/hexwall)
+
+## Creating the hex map
+To create a hexagon map of Australia, we first need to find a map. I'm using the [GADM](https://gadm.org/) database to give a nice boundary of Australia, which is easily obtainable via the raster package.
+
+```{r getAus}
+library(tidyverse)
+library(raster)
+library(sf)
+aus <- getData("GADM", country = "AUS", level = 0) %>%
+  disaggregate() %>%
+  geometry()
+
+ggplot() + 
+  geom_sf(data = st_as_sf(aus))
+```
+
+To convert this map into hexagonal coordinates, we can use the `spsample` function to sample a hexagonal lattice. Through experimentation, a cellsize of 2 is roughly appropriate for the number of hexagons submitted to us. As it is a random process, some repetition may be needed to get the exact number of hexagons on the map with a nice layout.
+
+```{r getCoords}
+hex_points <- aus %>%
+  spsample(type = "hexagonal", cellsize = 2)
+
+as_tibble(hex_points@coords)
+```
+
+To ensure that we are happy with the hexagon placements, we should view the hexagon grid on a map. We can convert our coordinates to hexagonal polygons using `HexPoints2SpatialPolygons`, and then plot them on the map.
+
+```{r plotHex}
+aus_hex <- HexPoints2SpatialPolygons(hex_points, dx = 2)
+
+ggplot() + 
+  geom_sf(data = st_as_sf(aus)) + 
+  geom_sf(data = st_as_sf(aus_hex), colour = "blue", fill = NA)
+```
+
+Looks great, let's make the map. Using the script from [mitchelloharawild/hexwall](https://github.com/mitchelloharawild/hexwall), we provide:
+
+* A folder containing the hexagon images
+* Desired pixel width of each hexagon
+* Hexagon coordinates computed above
+
+If there are lot of stickers to position, or the resulting image dimension is large, this may take some time.
+
+```{r hexwall, eval = FALSE}
+source("hexwall.R")
+hexwall(
+  "hexstickers",
+  sticker_width = 500,
+  coords = hex_points@coords
+)
+```
+![](/blog/2018-07-10-user-2018-feature-wall_files/final.jpg)
+
+Beyond that, there were just a few finishing touches needed to add the useR! 2018 logo and text. Hope you all enjoy the 2018 useR! conference :)

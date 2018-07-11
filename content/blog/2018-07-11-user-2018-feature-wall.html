@@ -1,0 +1,102 @@
+---
+title: useR! 2018 feature wall
+author: Mitchell O'Hara-Wild
+date: '2018-07-11'
+slug: user-2018-feature-wall
+categories:
+  - magick
+  - useR!2018
+tags:
+  - conference
+  - hexagon
+  - sticker
+  - wall
+  - design
+description: 'Creating the hexmap feature wall for useR! 2018'
+featured: 'featurewall.png'
+featuredalt: 'Hex sticker feature wall'
+featuredpath: 'date'
+linktitle: ''
+type: post
+---
+
+
+
+<p>The hexwall at <a href="http://user2018.r-project.org/">useR! 2018</a> features roughly 200 contributed R package hexagon stickers. If you’ve ever had difficulty aligning hexagon stickers in your slides or even on your laptop, you may appreciate the challenge of arranging hundreds of hexagons. Fortunately with R and a little bit of magick, we can substantially simplify this process.</p>
+<div id="collection" class="section level2">
+<h2>Collection</h2>
+<p>Hexagon collection proved to be one of the more time-consuming steps in the project. Without a Comprehensive R Hexagon Repository (CRHR), Di Cook (<a href="https://twitter.com/visnut/">@visnut</a>) and I resorted to collecting hexagons via email and promoting the project via twitter.</p>
+<p>{{% tweet 999443177412030464 %}}</p>
+<p>Our collection efforts were also supported by Rstudio’s <a href="http://github.com/rstudio/hexsticker">hexsticker</a> and Bioconductor’s <a href="https://github.com/Bioconductor/BiocStickers">BiocStickers</a> repositories. We opted not to sift through the <a href="http://hexb.in/">hexb.in</a> library as we wanted the feature wall to feature only R package stickers.</p>
+<p>The response to our project has been huge, and we are grateful for everyone who has contributed their stickers.</p>
+</div>
+<div id="hexwall" class="section level2">
+<h2>hexwall</h2>
+<p>The hexwall script (available at <a href="https://github.com/mitchelloharawild/hexwall">mitchelloharawild/hexwall</a>) provides the magick for cleaning, sorting, and arranging hexagons. The function does the following operations using the <a href="https://github.com/ropensci/magick">ROpenSci magick package</a>:</p>
+<ul>
+<li>Load the images</li>
+<li>Make white backgrounds transparent</li>
+<li>Trim images</li>
+<li>Remove bad images (low resolution or incorrect dimensions)</li>
+<li>Arrange the stickers on the canvas</li>
+</ul>
+<p>For more details on using magick to arrange hexagons, you can read <a href="https://blog.mitchelloharawild.com/blog/hexwall">arranging hex stickers in R</a></p>
+</div>
+<div id="creating-the-hex-map" class="section level2">
+<h2>Creating the hex map</h2>
+<p>To create a hexagon map of Australia, we first need to find a map. I’m using the <a href="https://gadm.org/">GADM</a> database to give a nice boundary of Australia, which is easily obtainable via the raster package.</p>
+<pre class="r"><code>library(tidyverse)
+library(raster)
+library(sf)
+aus &lt;- getData(&quot;GADM&quot;, country = &quot;AUS&quot;, level = 0) %&gt;%
+  disaggregate() %&gt;%
+  geometry()
+
+ggplot() + 
+  geom_sf(data = st_as_sf(aus))</code></pre>
+<p><img src="/blog/2018-07-11-user-2018-feature-wall_files/figure-html/getAus-1.png" width="672" /></p>
+<p>To convert this map into hexagonal coordinates, we can use the <code>spsample</code> function to sample a hexagonal lattice. Through experimentation, a cellsize of 2 is roughly appropriate for the number of hexagons submitted to us. As it is a random process, some repetition may be needed to get the exact number of hexagons on the map with a nice layout.</p>
+<pre class="r"><code>hex_points &lt;- aus %&gt;%
+  spsample(type = &quot;hexagonal&quot;, cellsize = 2)
+
+as_tibble(hex_points@coords)</code></pre>
+<pre><code>#&gt; # A tibble: 204 x 2
+#&gt;        x     y
+#&gt;    &lt;dbl&gt; &lt;dbl&gt;
+#&gt;  1  146. -43.3
+#&gt;  2  145. -41.6
+#&gt;  3  147. -41.6
+#&gt;  4  141. -38.1
+#&gt;  5  143. -38.1
+#&gt;  6  145. -38.1
+#&gt;  7  147. -38.1
+#&gt;  8  140. -36.4
+#&gt;  9  142. -36.4
+#&gt; 10  144. -36.4
+#&gt; # ... with 194 more rows</code></pre>
+<p>To ensure that we are happy with the hexagon placements, we should view the hexagon grid on a map. We can convert our coordinates to hexagonal polygons using <code>HexPoints2SpatialPolygons</code>, and then plot them on the map.</p>
+<pre class="r"><code>aus_hex &lt;- HexPoints2SpatialPolygons(hex_points, dx = 2)
+
+ggplot() + 
+  geom_sf(data = st_as_sf(aus)) + 
+  geom_sf(data = st_as_sf(aus_hex), colour = &quot;blue&quot;, fill = NA)</code></pre>
+<p><img src="/blog/2018-07-11-user-2018-feature-wall_files/figure-html/plotHex-1.png" width="672" /></p>
+<p>Looks great, let’s make the map. Using the script from <a href="https://github.com/mitchelloharawild/hexwall">mitchelloharawild/hexwall</a>, we provide:</p>
+<ul>
+<li>A folder containing the hexagon images</li>
+<li>Desired pixel width of each hexagon</li>
+<li>Hexagon coordinates computed above</li>
+</ul>
+<p>If there are lot of stickers to position, or the resulting image dimension is large, this may take some time.</p>
+<pre class="r"><code>source(&quot;hexwall.R&quot;)
+hexwall(
+  &quot;hexstickers&quot;,
+  sticker_width = 500,
+  coords = hex_points@coords
+)</code></pre>
+<div class="figure">
+<img src="/blog/2018-07-10-user-2018-feature-wall_files/final.jpg" />
+
+</div>
+<p>Beyond that, there were just a few finishing touches needed to add the useR! 2018 logo and text. Hope you all enjoy the 2018 useR! conference :)</p>
+</div>
