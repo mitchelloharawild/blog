@@ -36,7 +36,7 @@ Hexagon collection proved to be one of the more time-consuming steps in the proj
 
 {{% tweet 999443177412030464 %}}
 
-Our collection efforts were also supported by Rstudio's [hexsticker](http://github.com/rstudio/hexsticker) and Bioconductor's [BiocStickers](https://github.com/Bioconductor/BiocStickers) repositories. We opted not to sift through the [hexb.in](http://hexb.in/) library as we wanted the feature wall to feature only R package stickers.
+Our collection efforts were also supported by Rstudio's [hex-stickers](http://github.com/rstudio/hex-stickers) and Bioconductor's [BiocStickers](https://github.com/Bioconductor/BiocStickers) repositories. We opted not to sift through the [hexb.in](http://hexb.in/) library as we wanted the feature wall to feature only R package stickers.
 
 The response to our project has been huge, and we are grateful for everyone who has contributed their stickers.
 
