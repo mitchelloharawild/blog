@@ -1,0 +1,138 @@
+---
+title: Arranging hex stickers in R
+author: Mitchell O'Hara-Wild
+date: '2018-07-10'
+slug: hexwall
+categories:
+  - magick
+  - purrr
+tags:
+  - hexagon
+  - sticker
+  - wall
+  - design
+description: 'Features magick to create the purrr-fect hex layout'
+featured: 'hexwall.png'
+featuredalt: 'Example hexwall'
+featuredpath: 'date'
+linktitle: ''
+type: post
+---
+
+
+
+<p>Neatly aligning hex stickers for presentations or reports is a tedious process. It is repetitive, and very easy to get wrong. Despite the physical hexagons having a standardised shape and size, digital hexagons appear in many forms. With variation in file type, resolution, transparency and layouts, working with hexagon files can prove challenging.</p>
+<p>The code in this blog is bundled into the hexwall R script (available at <a href="https://github.com/mitchelloharawild/hexwall">mitchelloharawild/hexwall</a>), making it simpler to arrange your stickers.</p>
+<p>My need for this functionality began with the creation of a hex sticker feature wall at <a href="http://user2018.r-project.org/">useR! 2018</a>. This involved arranging approximately 200 stickers in the shape of Australia, which you can read about in <a href="https://blog.mitchelloharawild.com/blog/user-2018-feature-wall">this blog post</a>.</p>
+<p>In that project we collected the stickers via email, but for this blog we will use the RStudio hex-stickers from their GitHub repository (<a href="https://github.com/rstudio/hex-stickers">rstudio/hex-stickers</a>).</p>
+<pre class="r"><code>hex_folder &lt;- &quot;hex_files&quot;
+
+download.file(
+  url = &quot;https://github.com/rstudio/hex-stickers/archive/master.zip&quot;,
+  destfile = file.path(hex_folder, &quot;rstudio-hex.zip&quot;)
+)</code></pre>
+<pre><code>#&gt; Warning in download.file(url = &quot;https://github.com/rstudio/hex-stickers/
+#&gt; archive/master.zip&quot;, : URL https://github.com/rstudio/hex-stickers/archive/
+#&gt; master.zip: cannot open destfile &#39;hex_files/rstudio-hex.zip&#39;, reason &#39;No
+#&gt; such file or directory&#39;</code></pre>
+<pre><code>#&gt; Warning in download.file(url = &quot;https://github.com/rstudio/hex-stickers/
+#&gt; archive/master.zip&quot;, : download had nonzero exit status</code></pre>
+<pre class="r"><code>unzip(
+  zipfile = file.path(hex_folder, &quot;rstudio-hex.zip&quot;),
+  exdir = hex_folder
+)</code></pre>
+<pre><code>#&gt; Warning in unzip(zipfile = file.path(hex_folder, &quot;rstudio-hex.zip&quot;), exdir
+#&gt; = hex_folder): error 1 in extracting from zip file</code></pre>
+<pre class="r"><code>path &lt;- file.path(hex_folder, &quot;hex-stickers-master&quot;, &quot;PNG&quot;)
+
+# Remove the non-image files
+unlink(list.files(path, full.names = TRUE)[tools::file_ext(list.files(path)) %in% c(&quot;md&quot;, &quot;Rmd&quot;)])
+
+list.files(path)</code></pre>
+<pre><code>#&gt; character(0)</code></pre>
+<div id="preparation" class="section level2">
+<h2>Preparation</h2>
+<p>Before we start aligning the hexagons, we first need to convert them to a common size and format. In most cases, the conversion can be done automatically with the <a href="https://github.com/ropensci/magick">ROpenSci magick package</a>.</p>
+<p>All images can be read with <code>image_read</code>, however better quality for svg and png formats can be obtained using their specific reading functions. As many stickers had white backgrounds (especially pdf format images), I first convert white to transparent, and then use <code>image_trim</code> to automatically crop the images.</p>
+<pre class="r"><code>library(magick)</code></pre>
+<pre><code>#&gt; Linking to ImageMagick 6.9.7.4
+#&gt; Enabled features: fontconfig, freetype, fftw, lcms, pango, x11
+#&gt; Disabled features: cairo, ghostscript, rsvg, webp</code></pre>
+<pre class="r"><code>library(purrr)
+
+sticker_files &lt;- list.files(path)
+stickers &lt;- file.path(path, sticker_files) %&gt;% 
+  map(function(path){
+    switch(tools::file_ext(path),
+           svg = image_read_svg(path),
+           pdf = image_read_pdf(path),
+           image_read(path))
+  }) %&gt;%
+  map(image_transparent, &quot;white&quot;) %&gt;%
+  map(image_trim) %&gt;%
+  set_names(sticker_files)</code></pre>
+<p>Unfortunately some stickers can not be fixed automatically, as they were either too low resolution or incorrectly shaped. These cases are easily identifiable for manual fixing from the image information provided by <code>image_info()</code>.</p>
+<pre class="r"><code># Desired sticker resolution in pixels
+sticker_width &lt;- 121
+
+# Scale all stickers to the desired pixel width
+stickers &lt;- stickers %&gt;%
+  map(image_scale, sticker_width)
+  
+# Identify low resolution stickers
+stickers %&gt;%
+    map_lgl(~ with(image_info(.x),
+                   width &lt; (sticker_width-1)/2 &amp;&amp; format != &quot;svg&quot;)
+    )
+
+# Identify incorrect shapes / proportions (tolerance of +-2 height)
+stickers %&gt;%
+    map_lgl(~ with(image_info(.x),
+                   height &lt; (median(height)-2) | height &gt; (median(height) + 2))
+    )</code></pre>
+<p>As some stickers may have slightly different proportions (wihin tolerances above), we first force the stickers to have identical dimensions for alignment.</p>
+<pre class="r"><code># Extract correct sticker height (this could also be calculated directly from width)
+sticker_height &lt;- stickers %&gt;%
+  map(image_info) %&gt;%
+  map_dbl(&quot;height&quot;) %&gt;%
+  median
+
+# Coerce sticker dimensions
+stickers &lt;- stickers %&gt;%
+  map(image_resize, paste0(sticker_width, &quot;x&quot;, sticker_height, &quot;!&quot;))
+
+stickers[[&quot;tidyverse.png&quot;]]</code></pre>
+<p><img src="/blog/2018-07-11-hexwall_files/figure-html/resize-1.png" width="60" /></p>
+</div>
+<div id="alignment" class="section level2">
+<h2>Alignment</h2>
+<p>Using magick, it is relatively trivial to align hexagons into rows using magick’s <code>image_append()</code> functionality. The total hexagons in each row alternates between odd and even numbers.</p>
+<pre class="r"><code>sticker_row_size &lt;- 9
+# Calculate row sizes
+sticker_col_size &lt;- ceiling(length(stickers)/(sticker_row_size-0.5))
+row_lens &lt;- rep(c(sticker_row_size,sticker_row_size-1), length.out=sticker_col_size)
+row_lens[length(row_lens)] &lt;- row_lens[length(row_lens)]  - (length(stickers) - sum(row_lens))
+
+sticker_rows &lt;- map2(row_lens, cumsum(row_lens),
+                     ~ seq(.y-.x+1, by = 1, length.out = .x)) %&gt;%
+  map(~ stickers[.x] %&gt;%
+        invoke(c, .) %&gt;%
+        image_append)
+
+sticker_rows[[1]]</code></pre>
+<p><img src="/blog/2018-07-11-hexwall_files/figure-html/rows-1.png" width="544" /></p>
+<p>To simplify the placement of these sticker rows, we can first create a white canvas for us to place sticker rows on. The width is simple to calculate, but the height is slightly more complex. The extra height of each row is the height of the left side of the hexagon (approximately <code>sticker_height/1.33526</code>), then to add the angled parts of the hexagon for the top and bottom, we add the height of one whole sticker.</p>
+<pre class="r"><code># Add stickers to canvas
+canvas &lt;- image_blank(sticker_row_size*sticker_width, 
+                      sticker_height + (sticker_col_size-1)*sticker_height/1.33526,
+                      &quot;white&quot;)</code></pre>
+<p>With our canvas and list of sticker_rows, it is time to add them to the final image using <code>image_composite</code>. The offset of the rows is calculated from the current row number (..3), which is used to add the current row (..2) to the canvas (..1).</p>
+<pre class="r"><code>reduce2(sticker_rows, seq_along(sticker_rows), 
+        ~ image_composite(
+          ..1, ..2,
+          offset = paste0(&quot;+&quot;, ((..3-1)%%2)*sticker_width/2,
+                          &quot;+&quot;, round((..3-1)*sticker_height/1.33526))
+        ),
+        .init = canvas)</code></pre>
+<p><img src="/blog/2018-07-11-hexwall_files/figure-html/final-1.png" width="544" /></p>
+</div>
