@@ -1,0 +1,119 @@
+---
+title: Introducing taipan
+author: Mitchell O'Hara-Wild
+date: '2018-09-27'
+slug: taipan
+categories:
+  - release
+  - image
+  - machine learning
+  - shiny
+tags:
+  - package
+  - cran
+  - shiny
+description: 'Annotate images for analysis with taipan'
+featured: 'taipan_app.png'
+featuredalt: 'Default taipan app'
+featuredpath: 'date'
+linktitle: ''
+type: post
+---
+
+
+
+<p><img src="/blog/2018-09-27-taipan_files/taipan.png" style="float:right"/> Annotating images is tiresome work, and existing tools do not make this much easier. Identifying features within images is a common task for training and evaluating machine learning models, and taipan aims to simplify this very manual process.</p>
+<div id="what-is-taipan" class="section level1">
+<h1>What is taipan?</h1>
+<p><em>taipan</em> is a <strong>T</strong>ool for <strong>A</strong>nnotating <strong>I</strong>mages in <strong>P</strong>reparation for <strong>AN</strong>alysis. It provides a customisable shiny app that pairs image area selection with a set of shiny inputs to flexibly classify the contents of images. Unlike most shiny app packages, taipan provides functionality to customise the key components (images and questions) of the app, and dynamically builds an app ready for deployment and sharing.</p>
+<p>The package originated from a research project with Tennis Australia, where the training dataset of 6406 images of tennis broadcast images were painstakingly annotated by Stephanie Kobakian (<a href="https://twitter.com/srkobakian">@srkobakian</a>). The package is the result of many iterations of the app we created to annotate these images.</p>
+</div>
+<div id="getting-started-with-taipan" class="section level1">
+<h1>Getting started with taipan</h1>
+<p>The taipan package is now available on CRAN, so it can be easily installed using:</p>
+<pre class="r"><code>install.packages(&quot;taipan&quot;)</code></pre>
+<p><em>taipan</em> provides two key functions that are used to build your own image annotation app, <code>taipanQuestions</code> is used to build a set of questions, and <code>buildTaipan</code> combines your questions and images to build an app in your folder of choice.</p>
+<p>These lists of questions can be flexibly produced using the <code>taipanQuestions</code> function, where any shiny inputs and web elements can be used to build your own survey for ‘scene’ and ‘selection’ scenarios. Scene questions are suitable for questions that apply to the whole image, and are shown when no selection is made. Selection questions are appropriate for selected areas of the image, and are shown when a selection is made.</p>
+<p>The questions can then be used to produce the app with <code>buildTaipan</code>, with a set images can be provided using local files and links to images online.</p>
+</div>
+<div id="example-not-hotdog" class="section level1">
+<h1>Example: Not hotdog</h1>
+<p>Suppose we’re interested in training a model to identify hotdogs in an image. To do this, we require a training dataset that describes the location and features of the hotdog.</p>
+<p><img src="/blog/2018-09-27-taipan_files/nothotdog.gif" /></p>
+<p>We would expect a few features that would useful for training the model, such as the existence of a hotdog, condiments of the hotdog, and overall quality of the image. Using shiny, we can construct this question interface using a variety of inputs.</p>
+<pre class="r"><code>library(taipan)
+library(shiny)
+questions &lt;- taipanQuestions(
+  scene = sliderInput(
+    &quot;quality&quot;, label = &quot;Image Quality&quot;,
+    min = 0, max = 10, value = 5),
+  selection = div(
+    radioButtons(&quot;hotdog&quot;, label = &quot;Hotdog?&quot;,
+      choices = list(&quot;Hotdog&quot;, &quot;Not hotdog&quot;)),
+    checkboxGroupInput(&quot;extra&quot;, label = &quot;Condiments&quot;,
+      choices = list(&quot;Onion&quot;, &quot;Tomato (Ketchup)&quot;, &quot;Barbeque&quot;, &quot;Mustard&quot;))
+  )
+)</code></pre>
+<p>Next, we need to find a set of questions to use. For this example, I’ve provided two sample images on the package’s GitHub repository.</p>
+<pre class="r"><code>images &lt;- c(&quot;https://raw.githubusercontent.com/srkobakian/taipan/master/sample_images/hotdog.jpg&quot;,
+            &quot;https://raw.githubusercontent.com/srkobakian/taipan/master/sample_images/not_hotdog.jpg&quot;)</code></pre>
+<p>Finally, we can build our app using these questions and images.</p>
+<pre class="r"><code>buildTaipan(questions, images, appdir = &quot;~/Shiny Applications/nothotdog&quot;)</code></pre>
+<p><img src="/blog/2018-09-27-taipan_files/hotdog_app.png" /></p>
+<p>Preview this app at <a href="https://shiny.mitchelloharawild.com/nothotdog/">shiny.mitchelloharawild.com/nothotdog/</a>, or run the code to build your own copy.</p>
+<p>Once the images have been annotated, the ‘Export Responses’ button can be used to download the data. The data is provided in a long tidy format, where the responses to scene and selection questions are merged and ready for model training and analysis</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">image_name</th>
+<th align="right">quality</th>
+<th align="right">xmin</th>
+<th align="right">xmax</th>
+<th align="right">ymin</th>
+<th align="right">ymax</th>
+<th align="left">hotdog</th>
+<th align="left">extra</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">hotdog.jpg</td>
+<td align="right">6</td>
+<td align="right">51</td>
+<td align="right">249</td>
+<td align="right">36.5</td>
+<td align="right">303.5</td>
+<td align="left">Hotdog</td>
+<td align="left">Onion, Tomato (Ketchup), Mustard</td>
+</tr>
+<tr class="even">
+<td align="left">hotdog.jpg</td>
+<td align="right">6</td>
+<td align="right">272</td>
+<td align="right">486</td>
+<td align="right">32.5</td>
+<td align="right">282.5</td>
+<td align="left">Hotdog</td>
+<td align="left">Onion, Tomato (Ketchup), Mustard</td>
+</tr>
+<tr class="odd">
+<td align="left">not_hotdog.jpg</td>
+<td align="right">7</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="additional-resources" class="section level1">
+<h1>Additional resources</h1>
+<ul>
+<li>Stephanie’s (<a href="https://twitter.com/srkobakian">@srkobakian</a>) <a href="https://srk.netlify.com/talks/taipan">useR!2018 lightning talk</a></li>
+<li>The vignette which shows <a href="https://srkobakian.github.io/taipan/articles/taipan-vignette.html">annotation of tennis images</a></li>
+<li>The <a href="https://github.com/srkobakian/taipan">GitHub repository</a></li>
+</ul>
+</div>

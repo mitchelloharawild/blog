@@ -1,0 +1,4 @@
+"image_name","quality","xmin","xmax","ymin","ymax","hotdog","extra"
+"hotdog.jpg","6",51,249,36.5,303.5,"Hotdog","Onion, Tomato (Ketchup), Mustard"
+"hotdog.jpg","6",272,486,32.5,282.5,"Hotdog","Onion, Tomato (Ketchup), Mustard"
+"not_hotdog.jpg","7",NA,NA,NA,NA,NA,NA
