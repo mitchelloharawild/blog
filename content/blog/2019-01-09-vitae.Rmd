@@ -1,0 +1,33 @@
+---
+title: Introducing vitae
+author: Mitchell O'Hara-Wild
+date: '2019-01-09'
+slug: vitae
+categories:
+  - release
+  - ropensci
+tags:
+  - cran
+  - package
+  - rmarkdown
+description: 'Automate your CV with vitae'
+featured: 'vitae-feature.png'
+featuredalt: 'Example vitae CV'
+featuredpath: 'date'
+linktitle: ''
+type: post
+---
+
+`r htmltools::img(src = "/blog/2019-01-09-vitae_files/vitae.png", style = "float:right")` For those looking to refresh their CV this year, the [vitae package](https://ropenscilabs.github.io/vitae/) may offer a convenient and maintainable solution. The package leverages the power of [R Markdown's dynamic documents](https://rmarkdown.rstudio.com/) to help you create, maintain, and even automate your Résumé or CV. The package provides a growing collection of popular CV templates, with simple data-driven functions add entries such as your education, experiences, and accolades. As the CV entries can be generated from data, it integrates well with existing and future R packages. This allows you to programatically filter your CV experiences to be more relevant for each job, and automatically download your qualifications or work experience from the web.
+
+The project began at the [2018 rOpenSci OzUnconf](https://ozunconf18.ropensci.org/), where R users of all levels of expertise came together to build [thirteen packages and one guide](http://ozunconf18.ropensci.org/projects/). Many of the participants had never developed an R package before, and had no experience with collaborative programming with git. Those interested in this great event should read Nicholas Tierney's ([\@nj_tierney](https://twitter.com/nj_tierney/)) recap on the rOpenSci blog: [*Continuing to Grow Community Together at ozunconf, 2018*](https://ropensci.org/blog/2019/01/08/ozunconf18/). 
+
+The resulting package is the result of many [ideas and discussions](https://github.com/ropensci/ozunconf18/issues/24) from participants of the unconference, and was primarily implemented by myself ([\@mitchoharawild](https://twitter.com/mitchoharawild)) and Rob Hyndman ([\@robjhyndman](https://twitter.com/robjhyndman)). An early realisation was that we each had slightly different pronunciations for *vitae*, and to our astonishment we were all wrong! It's supposed to be [pronounced */ˈviːteɪ/*](https://www.youtube.com/watch?v=8uEJDQAUgJk), as in *vee-tie*, because it is a Latin expression - who knew?
+
+As of today, the vitae package is now available on [CRAN](https://cran.r-project.org/package=vitae). Is it time to update your CV? Get started with the package by reading the [*introduction to vitae*](https://ropenscilabs.github.io/vitae/articles/vitae.html). Also, look out for a blog post tomorrow on the [rOpenSci blog](https://ropensci.org/blog/) about the design decisions around vitae, and some examples of how it can be used to quickly create your next CV.
+
+# Read more about vitae
+
+* The [pkgdown website](https://ropenscilabs.github.io/vitae/)
+* The vignettes: [*Introduction to vitae*](https://ropenscilabs.github.io/vitae/articles/vitae.html) and [*Creating vitae templates*](https://ropenscilabs.github.io/vitae/articles/extending.html)
+* The [GitHub repository](https://github.com/ropenscilabs/vitae/)
