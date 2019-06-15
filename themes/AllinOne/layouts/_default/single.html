@@ -40,6 +40,13 @@
             </div> -->
           </div>
           <!-- /.Tags -->
+          
+          {{ if ne .Site.DisqusShortname "" }}
+            <article class="post">
+              {{ template "_internal/disqus.html" . }}
+            </article>
+          {{ end }}
+          
 
           <!-- Prev & Next -->
           <div class="row pt-3">
