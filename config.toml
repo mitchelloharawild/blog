@@ -1,200 +1,75 @@
 baseurl = "/"
 languageCode = "en-uk"
-title = "Blog - Mitchell O'Hara-Wild"
-theme = "hugo-future-imperfect"
+title = "Mitchell O'Hara-Wild"
+theme = "AllinOne"
 preserveTaxonomyNames = true
-paginate = 3
+Paginate = 3
 disqusShortname = "mitchell-blog"
 googleAnalytics = "UA-120974019-1"
 pluralizeListTitles = false
 # Set the followings to true as part of your site SEO
 enableRobotsTXT = true
-canonifyURLs = true
+canonifyurls = true
+
+builddrafts                = false
+contentdir                 = "content"
+layoutdir                  = "layouts"
+publishdir                 = "public"
+enableEmoji                = true
+hasCJKLanguage             = false
+summaryLength              = 200
+
+pygmentsuseclasses         = true
+
 
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
+[permalinks]
+  blog                     = "blog/:year-:month/:slug/"
+  
+[taxonomies]
+  tag                      = "tags"
+  series                   = "series"
+  category                 = "categories"
+
+[menu]
+  [[menu.main]]
+    name                   = "Blog"
+    weight                 = -120
+    identifier             = "blog"
+    url                    = "blog/"  
+
 [params]
-  author               = "Mitchell O'Hara-Wild"
-  # Sets the meta tag description
-  description          = "A brief blog detailing problem solving approaches using R."
-  # Sets the navbarTitle that appears in the top left of the navigation bar
-  navbarTitle          = "Mitchell"
-  # Sets where "View More Posts" links
-  viewMorePostLink     = "/blog/"
+  faviconfile              = "img/main/icon.jpg"               # from static/
+  avatar                   = "img/main/icon.jpg"             # path to image in static dir e.g img/avatar.png 
+  author                   = "Mitchell O'Hara-Wild"
+  description              = []           # appears in the site header when set to a non-empty string
+  welcome_head             = "Hello, World!"
+  welcome_word             = "~ No Day But Today ~"
 
-# Optional Params
-  # Sets navbarTitle to match the section of the website
-  dynamicTitles        = false
-  # Sets RSS icons to appear on the sidebar with the social media buttons
-  rssAppearAtTop       = true
-  rssAppearAtBottom    = false
-  # Sets Social Media icons to appear on the sidebar
-  socialAppearAtTop    = true
-  socialAppearAtBottom = false
-  # Sets Categories to sort by number of posts instead of alphabetical
-  categoriesByCount    = true
-  # set to show or to hide categories in the sidebar
-  showSidebarCategories = false
-  # Sets Estimated Reading Time to appear in post headers
-  includeReadingTime   = false
-  # Sets the Favicon and Version for the site. Default support is for
-  # apple-touch-icon-precomposed.png, favicon.png, favicon.ico, and mstile.png.
-  # These are stored in the favicon folder. See the following for more information:
-  # https://github.com/audreyr/favicon-cheat-sheet
-  loadFavicon          = false
-  faviconVersion       = ""
-  # Sets Social Share links to appear on posts
-  socialShare          = false
-  # Sets specific share to appear on posts (default behavior is to appear)
-  socialShareTwitter   = true
-  socialShareGoogleplus = true
-  socialShareFacebook  = true
-  socialShareReddit    = true
-  socialShareLinkedin  = true
-  socialShareStumbleupon = true
-  socialSharePinterest = true
-  socialShareEmail     = true
+  latestpostscount         = 5                             # how many posts to display on the home page
+  bloggroupby              = 'month'
+  dateform                 = "Jan 2, 2006"
+  dateformfull             = "2006-01-02  Monday  15:04:05"
+  noshowreadtime           = false                         # if true, don't show "<x> minutes read" in posts
 
-  # Load custom CSS or JavaScript files. The variable is an array so that you
-  # can load multiple files if necessary. You can also load the standard theme
-  # files by adding the value, "default".
-  # customCSS            = ["default", "/path/to/file"]
-  # customJS             = ["default", "/path/to/file"]
-  customCSS            = ["default"]
-  customJS             = ["default"]
+  # slides
+  slidesDirPath            = "static/img/header-slides"    # path to image in local dir (path for hugo)
+  slidesDirPathURL         = "img/header-slides"    # path to image in static dir (for static pages)
 
-  # options for highlight.js (version, additional languages, and theme)
-  disable_highlight = false # set to true to disable Highlight
-  highlightjsVersion = "9.11.0"
-  highlightjsCDN = "//cdn.bootcss.com"
-  highlightjsLang = ["r", "yaml", "css"]
-  highlightjsTheme = "github"
-  MathJaxCDN = "//cdn.bootcss.com"
-  MathJaxVersion = "2.7.1"
+  # highlighting 
+  highlightjs              = true
 
-# Disqus will take priority over Staticman (github.com/eduardoboucas/staticman)
-# due to its ease of use. Feel free to check out both and decide what you would
-# prefer to use. See Staticman.yml for additional settings.
-[params.staticman]
-  # Sets Statiman to be active
-  staticman = false
-  # Sets the location for Staticman to connect to
-  username  = ""
-  repo      = ""
-  branch    = ""
+  # latex
+  katex                    = true
 
-  [params.staticman.recaptcha]
-    sitekey = "SITE_KEY"
-    secret  = "ENCRYPTED_SECRET"
-
-  # These are optional params related to the sidebar. They are recommended, but not
-  # required for proper functionality. HTML is supported within the params.
-[params.intro]
-  header    = "Blog"
-
-  paragraph = "A small platform for me to share R related goodness."
-
-  about     = "Data scientist developing R packages."
-
-  # This appears at the top of the sidebar above params.intro.header.
-  # A width of less than 100px is recommended from a design perspective.
-  [params.intro.pic]
-    src       = "/img/main/icon.jpg"
-    # Sets Image to be a cirlce
-    circle    = true
-    # Sets Image to be Future Imperfect's hexagon
-    imperfect = false
-    width     = "100px"
-    alt       = "Intro picture"
-
-[params.postAmount]
-# Sets the number of recent posts to show in the sidebar. The default value is 5.
-    sidebar = 0
-
-# Sets the menu items in the navigation bar
-# Identifier prepends a Font Awesome icon to the menu item
-[[menu.main]]
-  name = "Home"
-  url = "/"
-  identifier = "fa fa-home"
-  weight = 1
-
-[[menu.main]]
-  name = "About"
-  url = "/about/"
-  identifier = "fa fa-id-card-o"
-  weight = 2
-
-[[menu.main]]
-  name = "Blog"
-  url = "/blog/"
-  identifier = "fa fa-newspaper-o"
-  weight = 3
-
-# [[menu.main]]
-#   name = "Itemized"
-#   url = "/itemized/"
-#   identifier = "fa fa-list"
-#   weight = 4
-
-[[menu.main]]
-  name = "Categories"
-  url = "/categories/"
-  identifier = "fa fa-sitemap"
-  weight = 5
-
-[[menu.main]]
-  name = "Contact"
-  url = "/contact/"
-  identifier = "fa fa-envelope-o"
-  weight = 6
-
-# Sets Social Media icons to appear and link to your account. Value should be your
-# username unless otherwise noted. These are the icons affected by socialAppearAtTop
-# and socialAppearAtBottom.
-[social]
-  # Coding Communities
-  github           = "mitchelloharawild"
-  gitlab           = ""
-  stackoverflow    = "" # User Number
-  bitbucket        = ""
-  jsfiddle         = ""
-  codepen          = ""
-  # Visual Art Communities
-  deviantart       = ""
-  flickr           = ""
-  behance          = ""
-  dribbble         = ""
-  # Publishing Communities
-  wordpress        = ""
-  medium           = ""
-  # Professional/Business Oriented Communities
-  linkedin         = "mitchelloharawild"
-  linkedin_company = ""
-  foursquare       = ""
-  xing             = ""
-  slideshare       = ""
-  # Social Networks
-  facebook         = ""
-  googleplus       = ""
-  reddit           = ""
-  quora            = ""
-  youtube          = ""
-  vimeo            = ""
-  whatsapp         = "" # WhatsApp Number
-    # WeChat and QQ need testing.
-    wechat         = ""
-    qq             = "" # User ID Number
-  instagram        = ""
-  tumblr           = ""
-  twitter          = "mitchoharawild"
-  skype            = ""
-  snapchat         = ""
-  pinterest        = ""
-  telegram         = ""
-  vine             = ""
-  googlescholar    = ""
-  orcid            = ""
-  researchgate     = ""
-  # Email
-  email            = "mail@mitchelloharawild.com"
+  # links
+  email                    = "mail@mitchelloharawild.com"
+  github                   = "//github.com/mitchelloharawild"
+  linkedin                 = "//linkedin.com/in/mitchelloharawild"
+  # facebook                 = "//facebook.com/you"
+  # googleplus               = "//google.com/you"
+  twitter                  = "//twitter.com/mitchoharawild"
+  # px500                    = "//px500"
+  # instagram                = "//instagram.com/you"
+  include_rss              = true                          # include RSS <link> tag in <head> and show RSS icon
