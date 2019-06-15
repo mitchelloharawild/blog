@@ -31,5 +31,10 @@ HUGO_ENABLEGITINFO = "true"
 
 [[redirects]]
   from = "http://blog-mitchell.netlify.com/*"
-  to = "http://blog.mitchelloharawild.com/:splat"
+  to = "http://www.mitchelloharawild.com/:splat"
+  status = 301
+
+[[redirects]]
+  from = "http://blog.mitchelloharawild.com/*"
+  to = "http://www.mitchelloharawild.com/:splat"
   status = 301
