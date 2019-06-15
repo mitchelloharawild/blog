@@ -11,10 +11,8 @@ tags:
   - package
   - rmarkdown
 description: 'Automate your CV with vitae'
-featured: 'vitae-feature.png'
-featuredalt: 'Example vitae CV'
-featuredpath: 'date'
-linktitle: ''
+feature_img: 'vitae-feature.png'
+feature_alt: 'Example vitae CV'
 type: post
 ---
 

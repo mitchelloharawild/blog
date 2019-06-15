@@ -13,10 +13,8 @@ tags:
   - cran
   - shiny
 description: 'Annotate images for analysis with taipan'
-featured: 'taipan_app.png'
-featuredalt: 'Default taipan app'
-featuredpath: 'date'
-linktitle: ''
+feature_img: 'taipan_app.png'
+feature_alt: 'Default taipan app'
 type: post
 ---
 

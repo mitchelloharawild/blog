@@ -13,10 +13,8 @@ tags:
   - wall
   - design
 description: 'Creating the hexmap feature wall for useR! 2018'
-featured: 'featurewall.png'
-featuredalt: 'Hex sticker feature wall'
-featuredpath: 'date'
-linktitle: ''
+feature_img: 'featurewall.png'
+feature_alt: 'Hex sticker feature wall'
 type: post
 ---
 
@@ -60,7 +58,7 @@ ggplot() +
   spsample(type = &quot;hexagonal&quot;, cellsize = 2)
 
 as_tibble(hex_points@coords)</code></pre>
-<pre><code>#&gt; # A tibble: 204 x 2
+<pre><code>#&gt; # A tibble: 201 x 2
 #&gt;        x     y
 #&gt;    &lt;dbl&gt; &lt;dbl&gt;
 #&gt;  1  146. -43.3
@@ -73,7 +71,7 @@ as_tibble(hex_points@coords)</code></pre>
 #&gt;  8  140. -36.4
 #&gt;  9  142. -36.4
 #&gt; 10  144. -36.4
-#&gt; # ... with 194 more rows</code></pre>
+#&gt; # … with 191 more rows</code></pre>
 <p>To ensure that we are happy with the hexagon placements, we should view the hexagon grid on a map. We can convert our coordinates to hexagonal polygons using <code>HexPoints2SpatialPolygons</code>, and then plot them on the map.</p>
 <pre class="r"><code>aus_hex &lt;- HexPoints2SpatialPolygons(hex_points, dx = 2)
 

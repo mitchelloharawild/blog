@@ -12,10 +12,8 @@ tags:
   - wall
   - design
 description: 'Features magick to create the purrr-fect hex layout'
-featured: 'hexwall.png'
-featuredalt: 'Example hexwall'
-featuredpath: 'date'
-linktitle: ''
+feature_img: 'hexwall.png'
+feature_alt: 'Example hexwall'
 type: post
 ---
 ```{r, include=FALSE}

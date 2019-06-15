@@ -13,10 +13,8 @@ tags:
   - wall
   - design
 description: 'Creating the hexmap feature wall for useR! 2018'
-featured: 'featurewall.png'
-featuredalt: 'Hex sticker feature wall'
-featuredpath: 'date'
-linktitle: ''
+feature_img: 'featurewall.png'
+feature_alt: 'Hex sticker feature wall'
 type: post
 ---
 ```{r, include=FALSE}
