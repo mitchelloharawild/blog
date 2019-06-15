@@ -30,7 +30,7 @@
             {{ if gt (len $data) 0 }}   
               <!-- In Data  -->
               {{ range $data }}
-                {{ partial "sidebar-card.html" (dict "url" $url "title" $title "img_path" ( .img | absLangURL ) "text" .summary ) }}
+                {{ partial "sidebar-card.html" (dict "url" $url "title" $title "img_path" ( .feature_img | absLangURL ) "text" .summary ) }}
               {{ end }}
             {{ else }}
               <!-- Not in Data -->

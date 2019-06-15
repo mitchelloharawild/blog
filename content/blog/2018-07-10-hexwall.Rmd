@@ -12,10 +12,11 @@ tags:
   - wall
   - design
 description: 'Features magick to create the purrr-fect hex layout'
-feature_img: 'hexwall.png'
+feature_img: '/blog/2018-07-10-hexwall_files/hexwall.png'
 feature_alt: 'Example hexwall'
 type: post
 ---
+
 ```{r, include=FALSE}
 knitr::opts_chunk$set(
   comment = "#>",

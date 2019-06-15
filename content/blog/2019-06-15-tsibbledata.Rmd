@@ -13,7 +13,7 @@ tags:
   - cran
   - time series
 description: 'Diverse datasets for tsibble'
-feature_img: 'tsibbledata-opengraph.png'
+feature_img: '/blog/2019-06-15-tsibbledata_files/tsibbledata-opengraph.png'
 feature_alt: 'tsibbledata: diverse datasets for tsibble'
 type: post
 ---

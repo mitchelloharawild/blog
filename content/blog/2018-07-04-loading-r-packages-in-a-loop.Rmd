@@ -10,7 +10,7 @@ tags:
   - package
   - loop
 description: 'Non-standard evaluation with the library function'
-feature_img: 'pkg_loop.png'
+feature_img: '/blog/2018-07-04-loading-r-packages-in-a-loop_files/pkg_loop.png'
 feature_alt: 'Example NSE problem'
 type: post
 ---
