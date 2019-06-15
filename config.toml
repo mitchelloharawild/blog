@@ -25,7 +25,7 @@ pygmentsuseclasses         = true
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 [permalinks]
-  blog                     = "blog/:year-:month/:slug/"
+  blog                     = "blog/:slug/"
   
 [taxonomies]
   tag                      = "tags"
@@ -44,14 +44,14 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
   avatar                   = "img/main/icon.jpg"             # path to image in static dir e.g img/avatar.png 
   author                   = "Mitchell O'Hara-Wild"
   description              = []           # appears in the site header when set to a non-empty string
-  welcome_head             = "Hello, World!"
-  welcome_word             = "~ No Day But Today ~"
+  welcome_head             = ""
+  welcome_word             = ""
 
   latestpostscount         = 5                             # how many posts to display on the home page
   bloggroupby              = 'month'
   dateform                 = "Jan 2, 2006"
   dateformfull             = "2006-01-02  Monday  15:04:05"
-  noshowreadtime           = false                         # if true, don't show "<x> minutes read" in posts
+  noshowreadtime           = true                         # if true, don't show "<x> minutes read" in posts
 
   # slides
   slidesDirPath            = "static/img/header-slides"    # path to image in local dir (path for hugo)
