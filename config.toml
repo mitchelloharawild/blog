@@ -17,7 +17,7 @@ layoutdir                  = "layouts"
 publishdir                 = "public"
 enableEmoji                = true
 hasCJKLanguage             = false
-summaryLength              = 200
+summaryLength              = 30
 
 pygmentsuseclasses         = true
 
@@ -47,7 +47,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
   welcome_head             = ""
   welcome_word             = ""
 
-  latestpostscount         = 5                             # how many posts to display on the home page
+  latestpostscount         = 3                             # how many posts to display on the home page
   bloggroupby              = 'month'
   dateform                 = "Jan 2, 2006"
   dateformfull             = "2006-01-02  Monday  15:04:05"
