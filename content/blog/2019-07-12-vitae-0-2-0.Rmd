@@ -24,7 +24,7 @@ The v0.2.0 update to the [vitae package](https://docs.ropensci.org/vitae/) is no
 
 This release introduces 5 new styles ready for you to try with your vitae. Theme
 support for [moderncv](https://github.com/xdanaux/moderncv) has been added, 
-allowing you to choose between `casual` (default), `classic`, `oldstyle`, 
+allowing you to choose between `casual` (existing default), `classic`, `oldstyle`, 
 `banking` and `fancy`. Themes for `moderncv` are specified in the YAML header:
 ```
 output: 
