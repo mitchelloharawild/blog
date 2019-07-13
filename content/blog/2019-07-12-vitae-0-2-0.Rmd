@@ -1,0 +1,69 @@
+---
+title: vitae 0.2.0
+author: Mitchell O'Hara-Wild
+date: '2019-07-12'
+slug: vitae-0-2-0
+categories:
+  - release
+  - ropensci
+tags:
+  - cran
+  - package
+  - rmarkdown
+description: 'New templates and more features'
+feature_img: '/blog/2019-07-12-vitae-0-2-0_files/latexcv.png'
+feature_alt: 'New vitae latexcv template'
+type: post
+---
+
+`r htmltools::img(src = "/blog/2019-01-09-vitae_files/vitae.png", style = "float:right")`
+
+The v0.2.0 update to the [vitae package](https://docs.ropensci.org/vitae/) is now available on CRAN, and along with it comes with new templates and more features. Read on to learn more, or refer to the [changelog](https://docs.ropensci.org/vitae/news/index.html) for a brief summary.
+
+# New templates and themes
+
+This release introduces 5 new styles ready for you to try with your vitae. Theme
+support for [moderncv](https://github.com/xdanaux/moderncv) has been added, 
+allowing you to choose between `casual` (default), `classic`, `oldstyle`, 
+`banking` and `fancy`. Themes for `moderncv` are specified in the YAML header:
+```
+output: 
+  vitae::moderncv:
+    theme: classic
+```
+
+Newly added is the classic theme from the [latexcv](https://github.com/jankapunkt/latexcv)
+template is now available using the `vitae::latexcv` output format. Other themes
+from this template will be added in a future version (contributions welcomed).
+
+If you'd like to contribute a new template to the vitae package, take a look at the [*creating vitae templates*](https://docs.ropensci.org/vitae/articles/extending.html) vignette.
+
+# Improvements
+
+This update includes a few incremental improvements. For those creating a new
+CV you'll now start from a more complete example of a vitae that features usage
+of `brief_entries()`, `detailed_entries()` and `bibliography_entries()`. We hope
+that this will make it easier for you to see how each of these functions work,
+giving you a quick start to making your own résumé.
+
+We've also added two new arguments for the YAML header. `docname` can be used to
+modify the "Curriculum Vitae" or "Résumé" text that exists in the template. We've
+also added `surname`, which allows special template formatting (output for the
+`name` remains unchanged).
+
+Speaking of surnames, this field will now appear in the dataset returned by
+`bibliography_entries()`. This is particularly useful for the improvements made
+to sorting bibliography entries, as they will now respect the order from the data.
+
+Lastly there is a new [*data sources for vitae*](https://docs.ropensci.org/vitae/articles/data.html)
+vignette, which highlights a few useful approaches to getting data into your CV.
+
+# Breaking changes
+
+Unfortunately we didn't get the interface for `bibliography_entries()` exactly right in the first version. We have decided that the `title` and `sorting` are not required and have deprecated them.
+
+The `sorting` argument was a common source of confusion for users that are unfamiliar the sorting interface for LaTeX's biblatex. Instead, we now use the order of entries in the tibble returned by `bibliography_entries()`, which allows you to use `dplyr::arrange()` to re-order the entries to suit your needs. Instead of using the `title` argument, we now recommend that you use markdown headers. 
+
+# Contributors
+
+Thanks to contributions from [\@chrisumphlett](https://github.com/chrisumphlett), and [\@jonmcalder](https://github.com/jonmcalder) for this release.
