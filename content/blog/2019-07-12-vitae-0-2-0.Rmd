@@ -66,4 +66,4 @@ The `sorting` argument was a common source of confusion for users that are unfam
 
 # Contributors
 
-Thanks to contributions from [\@chrisumphlett](https://github.com/chrisumphlett), and [\@jonmcalder](https://github.com/jonmcalder) for this release.
+Thanks to contributions from [\@chrisumphlett](https://github.com/chrisumphlett), and [\@jonmcalder](https://github.com/jonmcalder) for this release. Contributions are welcomed, check out the GitHub repository for more details: https://github.com/ropenscilabs/vitae
