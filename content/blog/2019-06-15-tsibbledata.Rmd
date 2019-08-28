@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-`r htmltools::img(src = "/blog/2019-06-15-tsibbledata_files/tsibbledata.png", style = "float:right")` The [tsibbledata](https://cran.r-project.org/package=tsibbledata) package provides a diverse collection of datasets for learning how to work with tidy time series data. There are 12 time series datasets included in the package, each of which featuring a unique time series characteristics or structures. These datasets are stored as [tsibble objects](http://tsibble.tidyverts.org/), which allows time series data to be used with the [tidyverse](https://www.tidyverse.org/).
+`r htmltools::img(src = "/blog/2019-06-15-tsibbledata_files/tsibbledata.png", class = "hex")` The [tsibbledata](https://cran.r-project.org/package=tsibbledata) package provides a diverse collection of datasets for learning how to work with tidy time series data. There are 12 time series datasets included in the package, each of which featuring a unique time series characteristics or structures. These datasets are stored as [tsibble objects](http://tsibble.tidyverts.org/), which allows time series data to be used with the [tidyverse](https://www.tidyverse.org/).
 
 The tsibbledata package is now available on CRAN, so it can be easily installed using:
 

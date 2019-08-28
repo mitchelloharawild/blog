@@ -16,7 +16,7 @@ feature_alt: 'New vitae latexcv template'
 type: post
 ---
 
-`r htmltools::img(src = "/blog/2019-01-09-vitae_files/vitae.png", style = "float:right")`
+`r htmltools::img(src = "/blog/2019-01-09-vitae_files/vitae.png", class = "hex")`
 
 The v0.2.0 update to the [vitae package](https://docs.ropensci.org/vitae/) is now available on CRAN, and along with it comes with new templates and more features. Read on to learn more, or refer to the [changelog](https://docs.ropensci.org/vitae/news/index.html) for a brief summary.
 
