@@ -24,7 +24,7 @@ knitr::opts_chunk$set(fig.width = 8.5)
 
 `r htmltools::img(src = "/blog/2019-08-30-introducing-feasts_files/feasts.png", class = "hex")`
 
-Feast your eyes on the latest CRAN release to the collection of [tidy time series R packages](http://tidyverts.org/). The [feasts package](http://feasts.tidyverts.org/) is feature packed with functions for understanding the behaviour of time series through visualisation, decomposition and feature extraction. The package name *feasts* is an acronym summarising its key features: *Feature Extraction And Statistics for Time Series*. Much like [Earo Wang](https://earo.me/)'s [tsibble](https://tsibble.tidyverts.org/) package, the feasts package is designed to work with multiple series observed at any time interval. 
+Feast your eyes on the latest CRAN release to the collection of [tidy time series R packages](http://tidyverts.org/). The [feasts package](http://feasts.tidyverts.org/) is feature-packed with functions for understanding the behaviour of time series through visualisation, decomposition and feature extraction. The package name *feasts* is an acronym summarising its key features: *Feature Extraction And Statistics for Time Series*. Much like [Earo Wang](https://earo.me/)'s [tsibble](https://tsibble.tidyverts.org/) package, the feasts package is designed to work with multiple series observed at any time interval. 
 
 If you've used graphics from [Rob Hyndman](https://robjhyndman.com/)'s [forecast](http://pkg.robjhyndman.com/forecast/) package or features from [tsfeatures](https://pkg.robjhyndman.com/tsfeatures/), this package allows these features to be used seamlessly with tsibble and the tidyverse.
 
@@ -62,7 +62,7 @@ tourism %>%
   autoplot(Trips)
 ```
 
-This allows us to see the big picture, and especially evident is that Holiday travel is the most common domestic tourism purpose. We can also see a substantial increase in trips after 2010. Holiday and business trips show the most seasonality, but it is unclear what quarter has the most trips.
+This allows us to see the big picture, and especially evident is that Holiday travel is the most common domestic tourism purpose. We can also see a substantial increase in trips after 2010. Holiday and business trips show the most seasonality, but it is unclear which quarter has the most trips.
 
 For a closer look at seasonality we can see seasonal plots (`gg_season()`) and seasonal subseries plots (`gg_subseries()`).
 
@@ -73,7 +73,7 @@ tourism %>%
   gg_season(Trips)
 ```
 
-A seasonal plot wraps the time axis by each seasonal period (in this case years), to more clearly display the seasonality in the data. It is clear from the Holiday facet that most trips are made in Q1, possibly to make the most of a Australia's hot summer days. It also seems that Q1 (summer) and Q4 (spring) are popular times to visit friends and family, with Q2 (autumn) and Q3 (winter) being a common time for business trips.
+A seasonal plot wraps the time axis by each seasonal period (in this case years), to more clearly display the seasonality in the data. It is clear from the Holiday facet that most trips are made in Q1, possibly to make the most of Australia's hot summer days. It also seems that Q1 (summer) and Q4 (spring) are popular times to visit friends and family, with Q2 (autumn) and Q3 (winter) being a common time for business trips.
 
 ```{r subseries}
 tourism %>% 
@@ -82,7 +82,7 @@ tourism %>%
   gg_subseries(Trips)
 ```
 
-The subseries plot is especially useful for identifying changes in seasonal patterns over time. It produces a set of data subseries for the times within each seasonal period. The above shows separate plots of consisting of the data from the same quarter, and the blue line indicates the average. From this plot we can see that Q4 business trips have stopped growing, whilst Q1-Q3 continue to trend upward.
+The subseries plot is especially useful for identifying changes in seasonal patterns over time. It produces a set of data subseries for the times within each seasonal period. The above shows separate plots consisting of the data from the same quarter, and the blue line indicates the average. From this plot we can see that Q4 business trips have stopped growing, whilst Q1-Q3 continue to trend upward.
 
 The feasts package can also do many more time series graphics, including:
 
@@ -166,7 +166,7 @@ tourism %>%
   theme(legend.position = "bottom")
 ```
 
-Here it is clear that holiday travel is the most seasonal purpose of tourism in Australia, however this is only the case for some regions. The strength of trend in these series varies similarly across travel purpose.
+Here, it is clear that holiday travel is the most seasonal purpose of tourism in Australia, however this is only the case for some regions. The strength of trend in these series varies similarly across travel purpose.
 
 The first release includes a total of 42 feature metrics, which can be computed together using `feature_set(pkgs = "feasts")`. A list of all currently available features can be found in links from the `?feature_set` help file.
 
