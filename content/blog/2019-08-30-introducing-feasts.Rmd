@@ -1,0 +1,179 @@
+---
+title: Introducing feasts
+author: Mitchell O'Hara-Wild
+date: '2019-08-30'
+slug: feasts
+categories:
+  - release
+  - time series
+  - tidyverse
+tags:
+  - cran
+  - package
+  - time series
+description: 'Feature extraction and statistics for time series'
+feature_img: '/blog/2019-08-30-introducing-feasts_files/feasts-opengraph.png'
+feature_alt: 'fable: tidy time series forecasting'
+type: post
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8.5)
+```
+
+
+`r htmltools::img(src = "/blog/2019-08-30-introducing-feasts_files/feasts.png", class = "hex")`
+
+Feast your eyes on the latest CRAN release to the collection of [tidy time series R packages](http://tidyverts.org/). The [feasts package](http://feasts.tidyverts.org/) is feature packed with functions for understanding the behaviour of time series through visualisation, decomposition and feature extraction. The package name *feasts* is an acronym summarising its key features: *Feature Extraction And Statistics for Time Series*. Much like [Earo Wang](https://earo.me/)'s [tsibble](https://tsibble.tidyverts.org/) package, the feasts package is designed to work with multiple series observed at any time interval. 
+
+If you've used graphics from [Rob Hyndman](https://robjhyndman.com/)'s [forecast](http://pkg.robjhyndman.com/forecast/) package or features from [tsfeatures](https://pkg.robjhyndman.com/tsfeatures/), this package allows these features to be used seamlessly with tsibble and the tidyverse.
+
+With the package now available on CRAN, it is now easier than ever to install:
+```{r install, eval = FALSE}
+install.packages("feasts")
+```
+
+To see what is on feasts' menu, we'll start by loading a few packages:
+
+```{r load, message = FALSE}
+library(tidyverse)
+library(tsibble)
+library(feasts)
+```
+
+In particular, we'll be exploring the total quarterly Australian domestic overnight trips for a variety of locations and purposes around Australia.
+```{r}
+tourism
+```
+
+There's plenty more datasets to explore in the [tsibbledata](/blog/tsibbledata/) package. 
+
+Not sure what a tsibble is? Learn about tidy time series data in [*Reintroducing tsibble: data tools to melt the clock*](https://blog.earo.me/2018/12/20/reintro-tsibble/).
+
+## Graphics
+
+A time series can be plotted in many ways, each of which providing a different perspective into the features and structural patterns of the time series.
+
+The most common graphic is a time series plot, which simply shows the data (y-axis) against time (x-axis).
+```{r plot}
+tourism %>% 
+  group_by(Purpose) %>% 
+  summarise(Trips = sum(Trips)) %>% 
+  autoplot(Trips)
+```
+
+This allows us to see the big picture, and especially evident is that Holiday travel is the most common domestic tourism purpose. We can also see a substantial increase in trips after 2010. Holiday and business trips show the most seasonality, but it is unclear what quarter has the most trips.
+
+For a closer look at seasonality we can see seasonal plots (`gg_season()`) and seasonal subseries plots (`gg_subseries()`).
+
+```{r season}
+tourism %>% 
+  group_by(Purpose) %>% 
+  summarise(Trips = sum(Trips)) %>% 
+  gg_season(Trips)
+```
+
+A seasonal plot wraps the time axis by each seasonal period (in this case years), to more clearly display the seasonality in the data. It is clear from the Holiday facet that most trips are made in Q1, possibly to make the most of a Australia's hot summer days. It also seems that Q1 (summer) and Q4 (spring) are popular times to visit friends and family, with Q2 (autumn) and Q3 (winter) being a common time for business trips.
+
+```{r subseries}
+tourism %>% 
+  group_by(Purpose) %>% 
+  summarise(Trips = sum(Trips)) %>% 
+  gg_subseries(Trips)
+```
+
+The subseries plot is especially useful for identifying changes in seasonal patterns over time. It produces a set of data subseries for the times within each seasonal period. The above shows separate plots of consisting of the data from the same quarter, and the blue line indicates the average. From this plot we can see that Q4 business trips have stopped growing, whilst Q1-Q3 continue to trend upward.
+
+The feasts package can also do many more time series graphics, including:
+
+* Lag plots `gg_lag()`
+* Autocorrelation plots (`autoplot()` of `ACF()`, `PACF()`, or `CCF()`)
+* Ensemble plots for time series (`gg_tsdisplay()`)
+* Ensemble plots for time series residuals (`gg_tsresiduals()`)
+* Plots of characteristic ARMA root (`gg_arma()`)
+
+To see more of these plots in action, check out Rob Hyndman's blog post on [*Time series graphics with feasts*](https://robjhyndman.com/hyndsight/feasts/).
+
+Also try out Earo Wang's incredible calendar plots (`facet_calendar()` `r emo::ji("exploding_head")`) from her [sugrrants](https://pkg.earo.me/sugrrants/) package!
+
+## Decompositions
+
+The first release of feasts contains two decompositions which tidy up existing functions from the stats package.
+
+```{r, echo = FALSE, asis = TRUE}
+tribble(
+  ~ Method, ~ stats, ~feasts,
+  "Classical seasonal decomposition", "`decompose()`", "`classical_decomposition()`",
+  "Loess seasonal decomposition", "`stl()`", "`STL()`"
+) %>% 
+  knitr::kable(format = "markdown")
+```
+
+Time series decompositions allow you to isolate structural components such as trend and seasonality from the data. The decomposition functions in feasts use a model-like formula interface, allowing you to control many aspects of the decomposition (using `season(window = 5)` allows the seasonality to change fairy quickly for quarterly data).
+
+```{r stl}
+tourism %>% 
+  group_by(Purpose) %>% 
+  summarise(Trips = sum(Trips)) %>% 
+  STL(Trips ~ season(window = 5))
+```
+
+The decomposed table (`dable`) explains how the `Trips` variable has been split into three new series via `Trips = trend + season_year + remainder`, which has been done for all four travel purposes.
+
+```{r dcmp-plot}
+tourism %>% 
+  group_by(Purpose) %>% 
+  summarise(Trips = sum(Trips)) %>% 
+  STL(Trips ~ season(window = 5)) %>% 
+  autoplot()
+```
+
+The dable can also be plotted to show how each of the decomposed components vary between series and time. A dable also behaves very similarly to a tsibble, allowing you to visualise the seasonality without distractions of trend and remainder terms.
+
+```{r dcmp-season}
+tourism %>% 
+  group_by(Purpose) %>% 
+  summarise(Trips = sum(Trips)) %>% 
+  STL(Trips ~ season(window = 5)) %>% 
+  gg_season(season_year)
+```
+
+## Features
+
+A big *feature* of feasts is the ability to extract a set of features (single value summary of data characteristics) from the time series.
+
+Features are particularly useful for visualising large collections of time series. Plotting multiple time series using the above methods do not scale very well beyond 10 similar series, and the original `tourism` dataset contains 304 (and even more if you consider aggregates)!
+
+The STL decomposition above can be used to compute features about the [strength of the its trend and seasonality components](https://otexts.com/fpp3/seasonal-strength.html), allowing us to see an overview of the entire dataset's patterns.
+
+```{r features}
+tourism %>% 
+  features(Trips, feature_set(tags = "stl"))
+```
+
+The features from an STL decomposition also describe other behaviours such as how linear, curved, and spiky the data is. This dataset of features can be used with ggplot2 (and other packages) to produce stunning overviews of many time series.
+
+```{r features-plot}
+tourism %>% 
+  features(Trips, feature_set(tags = "stl")) %>% 
+  ggplot(aes(x = trend_strength, y = seasonal_strength_year, colour = Purpose)) + 
+  geom_point() + 
+  stat_density_2d(aes(fill = Purpose, alpha = ..level..), bins = 5, geom = "polygon") + 
+  facet_wrap(vars(Purpose), nrow = 1) +
+  coord_equal() + 
+  xlim(c(0,1)) + ylim(c(0,1)) + 
+  labs(x = "Trend strength", y = "Seasonal strength") + 
+  theme(legend.position = "bottom")
+```
+
+Here it is clear that holiday travel is the most seasonal purpose of tourism in Australia, however this is only the case for some regions. The strength of trend in these series varies similarly across travel purpose.
+
+The first release includes a total of 42 feature metrics, which can be computed together using `feature_set(pkgs = "feasts")`. A list of all currently available features can be found in links from the `?feature_set` help file.
+
+
+# Read more about feasts
+
+* The [pkgdown website](http://feasts.tidyverts.org/)
+* [*Time series graphics*](https://otexts.com/fpp3/graphics.html) from [*Forecasting: Principles and Practices (3ed.)*](https://otexts.com/fpp3/)
+* The vignettes: [*Introduction to feasts*](http://feasts.tidyverts.org/articles/feasts.html)
+* The [GitHub repository](https://github.com/tidyverts/feasts/)
