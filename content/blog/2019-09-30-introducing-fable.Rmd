@@ -1,0 +1,355 @@
+---
+title: Introducing fable
+author: Mitchell O'Hara-Wild
+date: '2019-09-30'
+slug: fable
+categories:
+  - release
+  - time series
+  - tidyverse
+tags:
+  - cran
+  - package
+  - time series
+description: 'Forecasting models for tidy time series'
+feature_img: '/blog/2019-09-30-introducing-fable_files/fable-opengraph.png'
+feature_alt: 'fable: tidy time series forecasting'
+type: post
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8.5)
+```
+
+`r htmltools::img(src = "/blog/2019-09-30-introducing-fable_files/fable.png", class = "hex")`
+
+The [fable package](http://fable.tidyverts.org/) bridges the gap between popular tidy data analysis workflows and time series forecasting. Using tidy temporal data from [Earo Wang](https://earo.me/)'s [tsibble package](https://tsibble.tidyverts.org/), fable allows complex forecasting tasks to be performed with ease. The package is the next iteration of [Rob Hyndman](https://robjhyndman.com/)'s [forecast package](http://pkg.robjhyndman.com/forecast/), providing the tools and extensibility support needed to overcome current and future time series challenges. I'm ecstatic to announce that the fable package is now available on CRAN! So whether your seasoned forecasting fanatic or your making your first foray into forecasting, getting started is easier than ever:
+
+```{r install, eval = FALSE}
+install.packages("fable")
+```
+
+# fable: forecasting with tables
+
+A major difference between *fable* and its predecessor *forecast* is the way in which time series data is stored. A substantial [source of confusion](https://robjhyndman.com/hyndsight/seasonal-periods/) for *forecast* package users is the creation and use of `ts` objects. The *fable* package is built upon the *tsibble* package, which (as the name suggests) is a `tibble` with time series structure. Among many benefits, the data is now in the same structure provided in most data files. This makes loading time series data into R a breeze (and less error-prone), as the column of data specifying the observation's measurement time is now actually used in the data! Other benefits of a tabular data structure include integration with non-temporal packages and support for multiple time series with mixed measurement types.
+
+<div class = "row">
+<div class="col-lg-7" style="font-size:110%;">
+
+> A fable is never true, but it tells you something important about reality - and that's what a forecast is.
+>
+> *Rob Hyndman (2018-06-21)*
+>
+> New York Open Statistical Programming Meetup
+> https://youtu.be/yx6OQ-8HofU?t=2484
+
+</div>
+
+<div class="col-lg-5">
+<img src="/blog/2019-09-30-introducing-fable_files/fable-nyhackr.png">
+</div>
+</div>
+
+The fable package has been actively developed over the past two years, and has undergone a couple of substantial revisions to the interface prior to release. Despite these changes the package's goals have remained constant:
+
+* Seamlessly integrate within a tidy data analysis workflow.
+* Provide a consistent, intuitive and familiar interface for time series modelling.
+* Simple forecasting (and reconciliation) of many related time series.
+* Encourage extensibility by developing general forecasting tools.
+* Provide forecasts with distributions, not intervals.
+* Naturally support sub-daily and high frequency data with complex structures.
+
+The first release of fable implements all of these goals and more. While this post won't cover the details of how these goals are achieved, I hope that the forecasting example below illustrates how these goals have been realised for forecasting in practice. I have no doubt that there will be many more blog posts which will explore fable in greater detail.
+
+# Forecasting with fable
+
+```{r load, message = FALSE}
+library(tidyverse)
+library(tsibble)
+library(fable)
+```
+
+To see how fable can be applied to real forecasting problems we'll create some simple forecasts of Australia's domestic tourism. This is the same dataset analysed in the [*Introducing feasts*](../feasts) post, which provides a visual introduction to the data making using the closely related [feasts package](http://feasts.tidyverts.org/).
+
+### Data manipulation and exploration
+
+```{r data}
+tourism
+```
+
+This dataset contains quarterly domestic overnight trips for a variety of locations and purposes around Australia. When disaggregated by the key variables (Region, State and Purpose), we have a total of 304 separate time series to forecast.
+
+Let's start simple and use [dplyr](https://dplyr.tidyverse.org/) to calculate the total overnight domestic trips for Australia.
+
+```{r tourism-total}
+tourism_aus <- tourism %>% 
+  summarise(Trips = sum(Trips))
+tourism_aus
+```
+
+At minimum, we should plot the data before considering a model for it. A tsibble dataset works seamlessly with [ggplot2](https://ggplot2.tidyverse.org/), allowing you to design informative graphics for this data. For a quick look at the data we also support `autoplot()` functionality (and more time series plots discussed in [*Introducing feasts*](../feasts)).
+
+```{r tourism-plot}
+tourism_aus %>% 
+  autoplot(Trips)
+```
+
+The first step to forecasting this data would be to identify appropriate model(s). A seasonal model would be required as the data shows signs of seasonality throughout the data. Including trend would also be helpful, although as the trend has changed over time (becoming positive after 2010) our model will need to support this too. Considering this, an [exponential smoothing model](https://otexts.com/fpp3/ets.html) may be suitable for this data.
+
+### Model specification
+
+Model specification in fable supports a formula based interface (much like `lm()` and other cross-sectional modelling functions). A model formula in R is expressed using `response ~ terms`, where the formula's left side describes the response (and any transformations), while the right describes terms used to model the response. The terms of a fable model often include model specific functions called 'specials'. They describe how the time series dynamics are captured by the model, and the supported specials can be found in the method's help file.
+
+Exponential smoothing models use defined using the [`ETS()`](http://fable.tidyverts.org/reference/ETS.html) function, which provides 'specials' for controlling the `error()`, `trend()` and `season()`. These time series elements appear to be additively combined to give the response, and so an appropriate model specification may be:
+
+```{r spec-full, eval = FALSE}
+ETS(Trips ~ error("A") + trend("A") + season("A"))
+```
+
+Identifying an appropriate model specification can be tricky as it requires some background knowledge about temporal patterns and ETS models. Don't be discouraged! If your unsure, you can let `ETS()` and other models automatically choose the best specification if multiple options are provided. So if you can't tell if the seasonality is additive (`season("A")`) or multiplicative (`season("M")`), you can let fable decide via:
+
+```{r spec-partial, eval = FALSE}
+ETS(Trips ~ error("A") + trend("A") + season(c("A", "M")))
+```
+
+In fact this automatic selection is the default option. If the `season()` special is not specified (excluded entirely from formula), the seasonal structure will be automatically chosen as either none, additive or multiplicative seasonality with `season(c("N", "A", "M"))`. Automatic selection also occurs when `error()` and `trend()` are not specified, allowing an appropriate ETS model to be determined fully automatically with:
+
+```{r spec-auto, eval = FALSE}
+ETS(Trips)
+```
+
+### Model estimation
+
+A model is estimated using the `model()` function, which uses a dataset to train one or more specified model(s).
+
+```{r model}
+fit <- tourism_aus %>% 
+  model(auto_ets = ETS(Trips))
+fit
+```
+
+The resulting mable (model table) object informs us that an ETS(A,A,A) model has been automatically selected. Within that cell a complete description of the model is stored, including everything needed to produce forecasts (such as estimated coefficients). The `report()` function can be used if the mable contains only one model, which provides a familiar display of the models estimates and summary measures.
+
+```{r}
+report(fit)
+```
+
+The package also supports verbs from the [broom package](https://broom.tidyverse.org/), allowing you to `tidy()` your coefficients, `glance()` your model summary statistics, and `augment()` your data with predictions. These verbs provide convenient and consistent methods for accessing useful values from an estimated model.
+
+### Producing forecasts
+
+The `forecast()` function is used to produce forecasts from estimated models. The forecast horizon (`h`) is used to specify how far into the future forecasts should be made. `h` can be specified with a number (the number of future observations) or text (the length of time to predict). You can also specify the time periods to predict using `new_data`, which allows you to provide a tsibble of future time points to forecast, along with any exogenous regressors which may be required by the model.
+
+```{r}
+fc <- fit %>% 
+  forecast(h = "2 years")
+fc
+```
+
+You'll notice that this function gives us a fable (forecast table), which contains point forecasts in the `Trips` column, and the forecast's distribution in the `.distribution` column. If we had specified a transformation in the model specification (say `ETS(log(Trips))`), the resulting forecasts would be [automatically back transformed and adjusted for bias](http://fable.tidyverts.org/articles/transformations.html).
+
+While using and storing distributions is powerful, they can be more difficult to interpret than intervals. Forecast intervals can be extracted from a forecast distribution using the `hilo()` function:
+
+```{r fc-hilo}
+fc %>% 
+  hilo(level = c(80, 95))
+```
+
+Rather than reading values from a table, it is usually easier to evaluate forecast behaviour by making a plot. Much like plotting a tsibble, we have provided `autoplot()` and `autolayer()` methods for plotting forecasts. Unlike the *forecast* package, *fable* does not store the original data and fitted model in the `fable` object, so the historical data must be passed in to see it on the plot.
+
+```{r fc-plot}
+fc %>% 
+  autoplot(tourism_aus)
+```
+
+### Choosing the best model
+
+While `ETS()` has been able to choose the best ETS model for this data, a different model class may give even better results. The `model()` function is capable of estimating many specified models. Let's compare the ETS model with an automatically selected [`ARIMA()`](fable.tidyverts.org/reference/ARIMA.html) model (much like [`forecast::auto.arima()`](http://pkg.robjhyndman.com/forecast/reference/auto.arima.html)) and a linear model ([`TSLM()`](http://fable.tidyverts.org/reference/TSLM.html)) with linear time trend and dummy seasonality.
+
+```{r many-models}
+fit <- tourism_aus %>% 
+  model(
+    ets = ETS(Trips),
+    arima = ARIMA(Trips),
+    lm = TSLM(Trips ~ trend() + season())
+  )
+fit
+```
+
+The mable now contains three models, each specified model is stored in a separate column.
+
+We can produce forecasts and visualise the results using the same code as before. To minimise overplotting I have chosen to only show the 80\% forecast interval, and have made the forecasts semi-transparent.
+
+```{r many-fc-plot}
+fit %>% 
+  forecast(h = "2 years") %>% 
+  autoplot(tourism_aus, level = 80, alpha = 0.5)
+```
+
+It is clear from this plot that the linear model (`lm`) is unable to capture the trend change at 2010. The linear model could be improved by using a piecewise linear trend with a knot at 2010, but I'll leave that for you to try (replace `trend()` with `trend(knots = yearquarter("2010 Q1"))`).
+
+Visually distinguishing the best model between ETS and ARIMA is difficult. The ETS model predicts a stronger trend than the ARIMA model, and both produce very similar seasonal patterns.
+
+To choose the best model we can make use of numerical accuracy measures using the `accuracy()` function. This function can compute various accuracy measures based on [point forecasts](https://fabletools.tidyverts.org/reference/point_accuracy_measures.html), [forecast intervals](https://fabletools.tidyverts.org/reference/interval_accuracy_measures.html) and [forecast distributions](https://fabletools.tidyverts.org/reference/distribution_accuracy_measures.html). It also allows you to specify your own accuracy measure functions.
+
+Training (in-sample) accuracy will be given when applied to a mable.
+
+```{r accuracy-mable}
+accuracy(fit)
+```
+
+The in-sample accuracy suggests that the ETS model performs best. This is because it has the lowest values for all accuracy measures (lower values indicate less errors). As expected, the linear model is much worse than the others.
+
+Forecast (out-of-sample) accuracy will be computed when a fable is used with `accuracy()`. Note that you will need to withhold a test set to base your accuracy on.
+
+```{r accuracy-fable}
+tourism_aus %>% 
+  # Withhold the last 3 years before fitting the model
+  filter(Quarter < yearquarter("2015 Q1")) %>% 
+  # Estimate the models on the training data (1998-2014)
+  model(
+    ets = ETS(Trips),
+    arima = ARIMA(Trips),
+    lm = TSLM(Trips ~ trend() + season())
+  ) %>% 
+  # Forecast the witheld time peroid (2015-2017)
+  forecast(h = "3 years") %>% 
+  # Compute accuracy of the forecasts relative to the actual data 
+  accuracy(tourism_aus)
+```
+
+The out-of-sample accuracy shows that the ARIMA model produced the most accurate forecasts for 2015-2017 using data from 1998-2014.
+
+So which model is best? In-sample (training) accuracy is based on many 1-step ahead forecasts using model coefficients based on the whole data. In many senses this is unrealistic, as the forecasts are partially based on information not available when forecasting into the future. Additionally, these forecasts are based only on one-step ahead accuracy, where in practice you may be interested in forecasting a few years ahead.
+
+Alternatively, out-of-sample (test) accuracy is more akin to the actual forecasting task: predicting the future using only past information. The accuracy is based on forecast errors from three years of data never seen by the model. This advantage is also a problem, as the accuracy is now based on just 12 values, so the performance is more sensitive to chance. Calculating accuracy using [time series cross-validation](https://otexts.com/fpp3/tscv.html) overcomes many of these problems, but will take more time to compute.
+
+In short, both ETS and ARIMA models are producing reasonable forecasts for this data. Instead of choosing a favourite, we can do better by averaging them which usually gives better results.
+
+```{r ensemble}
+fit <- tourism_aus %>% 
+  model(
+    ets = ETS(Trips),
+    arima = ARIMA(Trips)
+  ) %>% 
+  mutate(
+    average = (ets + arima) / 2
+  )
+fit
+```
+
+```{r ensemble-fc-plot}
+fit %>% 
+  forecast(h = "2 years") %>% 
+  autoplot(tourism_aus, level = 80, alpha = 0.5)
+```
+
+### Scaling it up
+
+Producing forecasts for a single time series isn't particularly exciting, and certainly doesn't align well with modern forecasting problems. Suppose we were interested in forecasting tourism for each of Australia's major states (and territories).
+
+```{r tourism-state}
+tourism_state <- tourism %>% 
+  group_by(State) %>% 
+  summarise(Trips = sum(Trips))
+tourism_state
+```
+
+The data now contains 8 separate time series, each with different time series characteristics:
+
+```{r tourism-state-plot}
+tourism_state %>% 
+  autoplot(Trips)
+```
+
+This is where the automatic model selection in *fable* is particularly useful. The `model()` function will estimate a specified model to all series in the data, so producing many models is simple.
+
+```{r state-models}
+fit <- tourism_state %>% 
+  model(
+    ets = ETS(Trips),
+    arima = ARIMA(Trips)
+  ) %>% 
+  mutate(
+    average = (ets + arima)/2
+  )
+fit
+```
+
+Each row of a mable corresponds to a separate time series (uniquely identified by its keys). From the output we can see a wide variety of models have been chosen. Some models have trend, others have seasonality, some have neither trend nor seasonality!
+
+Producing forecasts and evaluating accuracy is no different whether your modelling one time series or a hundred.
+
+```{r state-fc-plot}
+fit %>% 
+  forecast(h = "2 years") %>% 
+  autoplot(tourism_state, level = NULL)
+```
+
+# Extensibility with fabletools
+
+Extensibility is at the core of fable. The *fable* package is actually built as an extension package, with all of the general tools provided by the [*fabletools* package](https://fabletools.tidyverts.org/). This allows extension modelling packages to focus on developing model specific methods while freely benefiting from general features provided by fabletools.
+
+Model specific methods (dependent on model support) include:
+
+* Forecasting (`forecast()`)
+* Missing value interpolation (`interpolate()`)
+* Reporting model output (`report()`)
+* Simulation of future paths (`generate()`)
+* Streaming new data (`stream()`)
+* Re-estimation (`refit()`)
+* Decomposition of model components (`components()`)
+* Model equation output (`equation()`)
+* Broom verbs (`augment()`, `coef()`/`tidy()`, `glance()`)
+* Model fits (`fitted()`, `residuals()`)
+
+General features of *fabletools* include:
+
+* Seamless integration with existing packages in the tidyverse
+* Tools for consistent modelling interface design (such as formula parsing)
+* Response transformations and back-transformations with bias adjustment
+* Batch modelling with parallelisation
+* Forecast distributions and intervals
+* Visualisation of time series, decompositions, and forecasts (`autoplot()`)
+* Accuracy evaluation (`accuracy()`) with [many accuracy measures](https://fabletools.tidyverts.org/reference/index.html#section-accuracy-evaluation)
+* Model combination (`combination_model()` / `(ets + arima)/2`)
+* Decomposition modelling (`decomposition_model()`)
+* Forecast reconciliation (`reconcile()`, `min_trace()`)
+
+Keep an eye out for more extension modelling packages being released this year!
+
+# Read more about fable
+
+While this blog post is long and covers a lot of things about forecasting with fable, it is far from comprehensive. The current most detailed resource for learning fable and forecasting is the [*Forecasting: Principles and Practices (3ed.)*](https://otexts.com/fpp3/) book (freely available online).
+
+Some other places with more information about *fable* include:
+
+* The [pkgdown website](http://fable.tidyverts.org/)
+* Rob Hyndman's [*Tidy forecasting in R*](https://robjhyndman.com/hyndsight/fable/) blog post
+* The [*Introduction to fable*](http://fable.tidyverts.org/articles/fable.html) vignette
+* UseR!2019 talk: [*Flexible futures for fable functionality*](https://www.youtube.com/watch?v=DhDOTxojQ3k)
+* The [GitHub repository](https://github.com/tidyverts/fable/)
+
+<!-- --- -->
+<!-- Tidy time series -->
+
+<!-- Recent time series challenges are characterised by the need to forecast many time series that are observed very frequently.    -->
+
+<!-- Using appropriate data structures is an essential first step in tackling these challenges. Many temporal data structures have been proposed in the past, each attempting to find a balance between efficiency and generality. On the two extremes of this spectrum are `ts` and `tsibble` (used by forecast and fable packages respectively).  -->
+
+<!-- The `ts` class provides the bare minimum, making it very efficient but extremely limited. It consists of a vector of numbers, and 3 numbers describing the start, end, and frequency of the data. As a result, it is limited to a single time series that is observed at regular intervals.  -->
+
+<!-- ts object -->
+
+<!-- A `tsibble` is a tibble for time series, which makes it very general at the expense of some overhead. Many time series are stored in a tidy format using key variables, and multiple measurements (of any class) can be stored as measured variables in the columns. The data must also contain an index, which describes the time for each observation. This flexibility makes it suitable for working with time series commonly collected today.  -->
+
+<!-- tsibble object -->
+
+<!-- Which is better? In almost every case `tsibble`. If you're working with a single regularly spaced time series, `ts` may be slightly faster but you lose access to many great packages designed around tidy data. The use of `ts` in the forecast package is a common source of confusion for new forecasters: creating a ts object, frequency, plot axis.  -->
+
+<!-- Tidy temporal data with tsibble forms the foundation of fable, allowing existing data analysis skills to be used within a time series forecasting workflow.  -->
+
+<!-- tsibble plot -->
+
+<!-- Forecasting with fable -->
+<!-- Modelling functions in fable use a formula based interface, which should be familiar to those  -->
