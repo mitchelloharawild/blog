@@ -23,7 +23,7 @@ knitr::opts_chunk$set(fig.width = 8.5)
 
 `r htmltools::img(src = "/blog/2019-09-30-introducing-fable_files/fable.png", class = "hex")`
 
-The [fable package](http://fable.tidyverts.org/) bridges the gap between popular tidy data analysis workflows and time series forecasting. Using tidy temporal data from [Earo Wang](https://earo.me/)'s [tsibble package](https://tsibble.tidyverts.org/), fable allows complex forecasting tasks to be performed with ease. The package is the next iteration of [Rob Hyndman](https://robjhyndman.com/)'s [forecast package](http://pkg.robjhyndman.com/forecast/), providing the tools and extensibility support needed to overcome current and future time series challenges. I'm ecstatic to announce that the fable package is now available on CRAN! So whether your seasoned forecasting fanatic or your making your first foray into forecasting, getting started is easier than ever:
+The [fable package](http://fable.tidyverts.org/) bridges the gap between popular tidy data analysis workflows and time series forecasting. Using tidy temporal data from [Earo Wang](https://earo.me/)'s [tsibble package](https://tsibble.tidyverts.org/), fable allows complex forecasting tasks to be performed with ease. The package is the next iteration of [Rob Hyndman](https://robjhyndman.com/)'s [forecast package](http://pkg.robjhyndman.com/forecast/), providing the tools and extensibility support needed to overcome current and future time series challenges. I'm ecstatic to announce that the fable package is now available on CRAN! So whether you're a seasoned forecasting fanatic or you're making your first foray into forecasting, getting started is easier than ever:
 
 ```{r install, eval = FALSE}
 install.packages("fable")
@@ -69,7 +69,7 @@ library(tsibble)
 library(fable)
 ```
 
-To see how fable can be applied to real forecasting problems we'll create some simple forecasts of Australia's domestic tourism. This is the same dataset analysed in the [*Introducing feasts*](../feasts) post, which provides a visual introduction to the data making using the closely related [feasts package](http://feasts.tidyverts.org/).
+To see how fable can be applied to real forecasting problems we'll create some simple forecasts of Australia's domestic tourism. This is the same dataset analysed in the [*Introducing feasts*](../feasts) post, which provides a visual introduction to the data using the closely related [feasts package](http://feasts.tidyverts.org/).
 
 ### Data manipulation and exploration
 
@@ -94,13 +94,13 @@ tourism_aus %>%
   autoplot(Trips)
 ```
 
-The first step to forecasting this data would be to identify appropriate model(s). A seasonal model would be required as the data shows signs of seasonality throughout the data. Including trend would also be helpful, although as the trend has changed over time (becoming positive after 2010) our model will need to support this too. Considering this, an [exponential smoothing model](https://otexts.com/fpp3/ets.html) may be suitable for this data.
+The first step to forecasting this data would be to identify appropriate model(s). A seasonal model would be required as the data shows signs of seasonality. Including trend would also be helpful, although as the trend has changed over time (becoming positive after 2010) our model will need to support this too. Considering this, an [exponential smoothing model](https://otexts.com/fpp3/ets.html) may be suitable for this data.
 
 ### Model specification
 
 Model specification in fable supports a formula based interface (much like `lm()` and other cross-sectional modelling functions). A model formula in R is expressed using `response ~ terms`, where the formula's left side describes the response (and any transformations), while the right describes terms used to model the response. The terms of a fable model often include model specific functions called 'specials'. They describe how the time series dynamics are captured by the model, and the supported specials can be found in the method's help file.
 
-Exponential smoothing models use defined using the [`ETS()`](http://fable.tidyverts.org/reference/ETS.html) function, which provides 'specials' for controlling the `error()`, `trend()` and `season()`. These time series elements appear to be additively combined to give the response, and so an appropriate model specification may be:
+Exponential smoothing models are defined using the [`ETS()`](http://fable.tidyverts.org/reference/ETS.html) function, which provides 'specials' for controlling the `error()`, `trend()` and `season()`. These time series elements appear to be additively combined to give the response, and so an appropriate model specification may be:
 
 ```{r spec-full, eval = FALSE}
 ETS(Trips ~ error("A") + trend("A") + season("A"))
@@ -120,7 +120,7 @@ ETS(Trips)
 
 ### Model estimation
 
-A model is estimated using the `model()` function, which uses a dataset to train one or more specified model(s).
+A model is estimated using the `model()` function, which uses a dataset to train one or more specified models.
 
 ```{r model}
 fit <- tourism_aus %>% 
@@ -220,7 +220,7 @@ tourism_aus %>%
 
 The out-of-sample accuracy shows that the ARIMA model produced the most accurate forecasts for 2015-2017 using data from 1998-2014.
 
-So which model is best? In-sample (training) accuracy is based on many 1-step ahead forecasts using model coefficients based on the whole data. In many senses this is unrealistic, as the forecasts are partially based on information not available when forecasting into the future. Additionally, these forecasts are based only on one-step ahead accuracy, where in practice you may be interested in forecasting a few years ahead.
+So which model is best? In-sample (training) accuracy uses one-step ahead forecast errors from model coefficients based on the whole data. In many senses this is unrealistic, as the forecasts are partially based on information not available when forecasting into the future. Additionally, these forecasts are based only on one-step ahead accuracy, where in practice you may be interested in forecasting a few years ahead.
 
 Alternatively, out-of-sample (test) accuracy is more akin to the actual forecasting task: predicting the future using only past information. The accuracy is based on forecast errors from three years of data never seen by the model. This advantage is also a problem, as the accuracy is now based on just 12 values, so the performance is more sensitive to chance. Calculating accuracy using [time series cross-validation](https://otexts.com/fpp3/tscv.html) overcomes many of these problems, but will take more time to compute.
 
@@ -278,7 +278,7 @@ fit
 
 Each row of a mable corresponds to a separate time series (uniquely identified by its keys). From the output we can see a wide variety of models have been chosen. Some models have trend, others have seasonality, some have neither trend nor seasonality!
 
-Producing forecasts and evaluating accuracy is no different whether your modelling one time series or a hundred.
+Producing forecasts and evaluating accuracy is no different whether you're modelling one time series or a hundred.
 
 ```{r state-fc-plot}
 fit %>% 
@@ -288,9 +288,9 @@ fit %>%
 
 # Extensibility with fabletools
 
-Extensibility is at the core of fable. The *fable* package is actually built as an extension package, with all of the general tools provided by the [*fabletools* package](https://fabletools.tidyverts.org/). This allows extension modelling packages to focus on developing model specific methods while freely benefiting from general features provided by fabletools.
+Extensibility is at the core of fable. *fable* is actually built as an extension of the more general [*fabletools* package](https://fabletools.tidyverts.org/). This allows extension modelling package developers to focus on writing methods specific to their model. More general methods used in modelling and forecasting are provided automatically by *fabletools*.
 
-Model specific methods (dependent on model support) include:
+Depending on the chosen model, the following features are supported: 
 
 * Forecasting (`forecast()`)
 * Missing value interpolation (`interpolate()`)
@@ -303,7 +303,7 @@ Model specific methods (dependent on model support) include:
 * Broom verbs (`augment()`, `coef()`/`tidy()`, `glance()`)
 * Model fits (`fitted()`, `residuals()`)
 
-General features of *fabletools* include:
+General *fabletools* functionality for all models include:
 
 * Seamless integration with existing packages in the tidyverse
 * Tools for consistent modelling interface design (such as formula parsing)
@@ -320,12 +320,12 @@ Keep an eye out for more extension modelling packages being released this year!
 
 # Read more about fable
 
-While this blog post is long and covers a lot of things about forecasting with fable, it is far from comprehensive. The current most detailed resource for learning fable and forecasting is the [*Forecasting: Principles and Practices (3ed.)*](https://otexts.com/fpp3/) book (freely available online).
+While this blog post is long and covers a lot of things about forecasting with fable, it is far from comprehensive. Currently, the best resource for learning forecasting with fable is the [*Forecasting: Principles and Practices (3ed.)*](https://otexts.com/fpp3/) book, which is freely available online.
 
 Some other places with more information about *fable* include:
 
 * The [pkgdown website](http://fable.tidyverts.org/)
-* Rob Hyndman's [*Tidy forecasting in R*](https://robjhyndman.com/hyndsight/fable/) blog post
+* Rob Hyndman's blog post: [*Tidy forecasting in R*](https://robjhyndman.com/hyndsight/fable/)
 * The [*Introduction to fable*](http://fable.tidyverts.org/articles/fable.html) vignette
 * UseR!2019 talk: [*Flexible futures for fable functionality*](https://www.youtube.com/watch?v=DhDOTxojQ3k)
 * The [GitHub repository](https://github.com/tidyverts/fable/)
