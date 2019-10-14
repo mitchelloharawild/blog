@@ -1,1 +1,2 @@
-http://blog.mitchelloharawild.com/*    https://www.mitchelloharawild.com/:splat  301!
+http://blog.mitchelloharawild.com/*    https://www.mitchelloharawild.com/blog/:splat  301!
+https://blog.mitchelloharawild.com/*   https://www.mitchelloharawild.com/blog/:splat  301!
