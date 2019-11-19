@@ -3,6 +3,7 @@ https://blog.mitchelloharawild.com/blog/*   https://www.mitchelloharawild.com/bl
 http://blog.mitchelloharawild.com/*    https://www.mitchelloharawild.com/blog/:splat  301!
 https://blog.mitchelloharawild.com/blog/*   https://www.mitchelloharawild.com/blog/:splat  301!
 https://mitchelloharawild.com/user2018/*   https://slides.mitchelloharawild.com/user2018/:splat  301!
+https://mitchelloharawild.com/useR2018/*   https://slides.mitchelloharawild.com/user2018/:splat  301!
 https://mitchelloharawild.com/fable-tfeam/*   https://slides.mitchelloharawild.com/fable-tfeam/:splat  301!
 https://mitchelloharawild.com/MelbURN17/*   https://slides.mitchelloharawild.com/MelbURN17/:splat  301!
 https://mitchelloharawild.com/wombat-gganimate/*   https://slides.mitchelloharawild.com/wombat-gganimate/:splat  301!
