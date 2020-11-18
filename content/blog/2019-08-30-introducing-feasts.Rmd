@@ -18,7 +18,7 @@ type: post
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(fig.width = 8.5)
+knitr::opts_chunk$set(fig.width = 8.5, warning = FALSE)
 ```
 
 
@@ -115,7 +115,8 @@ Time series decompositions allow you to isolate structural components such as tr
 tourism %>% 
   group_by(Purpose) %>% 
   summarise(Trips = sum(Trips)) %>% 
-  STL(Trips ~ season(window = 5))
+  model(STL(Trips ~ season(window = 5))) %>% 
+  components()
 ```
 
 The decomposed table (`dable`) explains how the `Trips` variable has been split into three new series via `Trips = trend + season_year + remainder`, which has been done for all four travel purposes.
@@ -124,7 +125,8 @@ The decomposed table (`dable`) explains how the `Trips` variable has been split 
 tourism %>% 
   group_by(Purpose) %>% 
   summarise(Trips = sum(Trips)) %>% 
-  STL(Trips ~ season(window = 5)) %>% 
+  model(STL(Trips ~ season(window = 5))) %>% 
+  components() %>% 
   autoplot()
 ```
 
@@ -134,7 +136,8 @@ The dable can also be plotted to show how each of the decomposed components vary
 tourism %>% 
   group_by(Purpose) %>% 
   summarise(Trips = sum(Trips)) %>% 
-  STL(Trips ~ season(window = 5)) %>% 
+  model(STL(Trips ~ season(window = 5))) %>%
+  components() %>% 
   gg_season(season_year)
 ```
 
